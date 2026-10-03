@@ -14,8 +14,13 @@ class Settings(BaseSettings):
     # Filled in during Phase 4B when the database is connected.
     database_url: str = ""
 
-    # Filled in during Phase 5 when Claude extraction is added.
-    anthropic_api_key: str = ""
+    # Gemini API key for real AI extraction (Phase 5+). Leave blank to use the
+    # mock extraction backend instead, no key required.
+    gemini_api_key: str = ""
+
+    # Explicitly force mock mode even if a key is present. Useful for offline
+    # development or avoiding API usage during routine testing.
+    force_mock_llm: bool = False
 
     # Filled in during Phase 8 when Supabase Auth is wired up.
     supabase_url: str = ""
@@ -27,6 +32,11 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def use_mock_llm(self) -> bool:
+        """True whenever there's no real API key, or mock mode is explicitly forced."""
+        return self.force_mock_llm or not self.gemini_api_key
 
 
 @lru_cache
