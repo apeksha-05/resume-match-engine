@@ -1,5 +1,10 @@
 from pydantic import BaseModel, Field
 
+import uuid
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
 
 class EvidencedSkill(BaseModel):
     name: str = Field(description="The skill name, as close to standard naming as possible")
@@ -50,3 +55,9 @@ class ResumeExtractionOut(BaseModel):
     filename: str
     word_count: int
     parsed: ParsedResume
+    
+class ResumeOut(BaseModel):
+    id: "uuid.UUID"
+    filename: str
+    parsed: ParsedResume
+    created_at: "datetime"
