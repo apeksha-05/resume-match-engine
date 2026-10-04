@@ -14,9 +14,9 @@ for canonical_name, (_category, aliases) in SKILLS.items():
     for alias in aliases:
         _SEARCH_TERMS[alias.lower()] = canonical_name
 
-# Words that, when found near a skill mention, suggest it's a "nice to have"
-# rather than a hard requirement. Deliberately simple; a real LLM (once a
-# working key is available) will do this far more reliably.
+# Words that, when found in the same sentence as a skill mention, suggest
+# it's a "nice to have" rather than a hard requirement. Deliberately simple;
+# a real LLM (once a working key is available) will do this far more reliably.
 PREFERRED_MARKERS = ["preferred", "nice to have", "bonus", "a plus", "good to have"]
 
 
@@ -28,24 +28,31 @@ def _skills_mentioned(text: str) -> set[str]:
     return found
 
 
+def _split_sentences(text: str) -> list[str]:
+    # Simple sentence splitter: good enough for mock-mode JD parsing.
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+
+
 def extract_structured_jd_mock(jd_text: str) -> ParsedJobDescription:
-    lower_text = jd_text.lower()
+    sentences = _split_sentences(jd_text)
 
-    # Split into a "preferred section" (after a preferred-marker word) and
-    # everything else, treated as required. This is a rough heuristic.
-    split_index = len(jd_text)
-    for marker in PREFERRED_MARKERS:
-        idx = lower_text.find(marker)
-        if idx != -1:
-            split_index = min(split_index, idx)
+    required_skills: set[str] = set()
+    preferred_skills: set[str] = set()
 
-    required_text = jd_text[:split_index]
-    preferred_text = jd_text[split_index:]
+    for sentence in sentences:
+        lower_sentence = sentence.lower()
+        skills_here = _skills_mentioned(sentence)
+        is_preferred_sentence = any(marker in lower_sentence for marker in PREFERRED_MARKERS)
 
-    required_skills = sorted(_skills_mentioned(required_text))
-    preferred_skills = sorted(_skills_mentioned(preferred_text) - set(required_skills))
+        if is_preferred_sentence:
+            preferred_skills.update(skills_here)
+        else:
+            required_skills.update(skills_here)
 
-    # Best-effort title guess: first non-empty line, truncated.
+    # A skill should not appear in both lists; preferred mentions win, since
+    # that's the more specific/explicit signal.
+    required_skills -= preferred_skills
+
     first_line = next((line.strip() for line in jd_text.splitlines() if line.strip()), "Untitled role")
     title_guess = first_line[:100]
 
@@ -54,9 +61,9 @@ def extract_structured_jd_mock(jd_text: str) -> ParsedJobDescription:
 
     return ParsedJobDescription(
         title=title_guess,
-        required_skills=required_skills,
-        preferred_skills=preferred_skills,
-        responsibilities=[],  # left empty; identifying real responsibility sentences needs real language understanding
+        required_skills=sorted(required_skills),
+        preferred_skills=sorted(preferred_skills),
+        responsibilities=[],
         min_years_experience=min_years,
         education_requirement=None,
     )
