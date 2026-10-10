@@ -9,7 +9,7 @@ from app.schemas.resume import ParsedResume
 from app.services.scoring import compute_analysis
 
 
-def _job_to_parsed_jd(job: Job) -> ParsedJobDescription:
+def job_to_parsed_jd(job: Job) -> ParsedJobDescription:
     """Builds a ParsedJobDescription from a saved Job row, so the recommender
     reuses the exact same scoring engine as the resume-vs-JD analysis flow,
     per the Phase 2 requirement that recommendations use the same matching logic."""
@@ -40,7 +40,7 @@ def recommend_jobs(
 
     recommendations: list[JobRecommendationOut] = []
     for job in jobs:
-        parsed_jd = _job_to_parsed_jd(job)
+        parsed_jd = job_to_parsed_jd(job)
         result = compute_analysis(resume, parsed_jd)
 
         matched_skills = sorted(
