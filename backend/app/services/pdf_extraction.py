@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import pymupdf
 
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 MIN_EXTRACTED_WORDS = 50  # below this, we assume a scanned or empty PDF
@@ -21,7 +21,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
         raise PdfValidationError("The file is too large. Maximum size is 5 MB.")
 
     try:
-        document = fitz.open(stream=file_bytes, filetype="pdf")
+        document = pymupdf.open(stream=file_bytes, filetype="pdf")
     except Exception as exc:
         raise PdfValidationError(
             "This file could not be read as a PDF. It may be corrupted or not a real PDF."

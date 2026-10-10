@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -29,6 +29,7 @@ from app.services.analysis_records import (
 from app.services.feedback import compute_full_analysis
 from app.services.jd_extraction import JdExtractionError, extract_structured_jd
 from app.services.recommendation import job_to_parsed_jd
+from app.services.report_pdf import build_report_pdf
 
 router = APIRouter()
 
@@ -142,3 +143,24 @@ def delete_analysis(
         raise HTTPException(status_code=404, detail="Analysis not found")
     db.delete(row)
     db.commit()
+    
+@router.get("/analyses/{analysis_id}/report.pdf")
+def download_report(
+    analysis_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user_id: uuid.UUID = Depends(get_current_user_id),
+) -> Response:
+    row = db.get(Analysis, analysis_id)
+    if row is None or row.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    pdf_bytes = build_report_pdf(unpack_analysis(row))
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            # The filename uses only the analysis id, never user-supplied text.
+            "Content-Disposition": f'attachment; filename="analysis-{row.id}.pdf"',
+            "Cache-Control": "private, no-store",
+        },
+    )

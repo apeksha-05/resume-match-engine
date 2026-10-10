@@ -53,7 +53,8 @@ async function readErrorMessage(response: Response): Promise<string> {
   return `Request failed with status ${response.status}.`;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+/** Sends an authenticated request and throws an ApiError for any failure. */
+async function send(path: string, init: RequestInit = {}): Promise<Response> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
 
@@ -75,6 +76,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!response.ok) {
     throw new ApiError(await readErrorMessage(response), response.status);
   }
+  return response;
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const response = await send(path, init);
   if (response.status === 204) {
     return undefined as T;
   }
@@ -115,6 +121,11 @@ export function listAnalyses(): Promise<ApiHistoryItem[]> {
 
 export function deleteAnalysis(id: string): Promise<void> {
   return request<void>(`/analyses/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export async function downloadAnalysisReport(id: string): Promise<Blob> {
+  const response = await send(`/analyses/${encodeURIComponent(id)}/report.pdf`);
+  return response.blob();
 }
 
 export interface ListJobsParams {

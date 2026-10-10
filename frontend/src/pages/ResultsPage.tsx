@@ -20,8 +20,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { mockAnalysis } from "@/data/mockData";
-import { getAnalysis, getErrorMessage } from "@/lib/api";
+import { downloadAnalysisReport, getAnalysis, getErrorMessage } from "@/lib/api";
+import { saveBlob } from "@/lib/download";
 import { useAuth } from "@/lib/auth-context";
 import { toAnalysisResult } from "@/lib/mappers";
 import type { AnalysisResult } from "@/types";
@@ -67,6 +69,25 @@ function ResultsLoading() {
 }
 
 function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  // The built-in demo is sample data that exists only in the browser,
+  // so it has no server-side report to download.
+  const canDownload = analysis.id !== mockAnalysis.id;
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      const blob = await downloadAnalysisReport(analysis.id);
+      saveBlob(blob, `resume-match-report-${analysis.id}.pdf`);
+    } catch (error) {
+      setDownloadError(getErrorMessage(error, "Could not download the report."));
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
@@ -74,11 +95,22 @@ function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
           title={`${analysis.jobTitle} at ${analysis.company}`}
           description="Estimated fit indicator. This is not a hiring probability."
         />
-        <Button variant="outline" disabled title="PDF export arrives in Phase 8C">
+        <Button
+          variant="outline"
+          disabled={!canDownload || isDownloading}
+          title={canDownload ? undefined : "Log in and run an analysis to download a report"}
+          onClick={handleDownload}
+        >
           <Download className="mr-2 size-4" />
-          Download report
+          {isDownloading ? "Preparing PDF..." : "Download report"}
         </Button>
       </div>
+
+      {downloadError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{downloadError}</AlertDescription>
+        </Alert>
+      )}
 
       {analysis.isDemo && (
         <Badge variant="outline" className="mb-4">
