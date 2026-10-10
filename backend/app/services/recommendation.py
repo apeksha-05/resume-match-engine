@@ -1,18 +1,17 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models.job import Job
-from app.schemas.job_description import ParsedJobDescription
 from app.schemas.job import JobOut
+from app.schemas.job_description import ParsedJobDescription
 from app.schemas.recommendation import JobRecommendationOut
 from app.schemas.resume import ParsedResume
 from app.services.scoring import compute_analysis
 
 
 def job_to_parsed_jd(job: Job) -> ParsedJobDescription:
-    """Builds a ParsedJobDescription from a saved Job row, so the recommender
-    reuses the exact same scoring engine as the resume-vs-JD analysis flow,
-    per the Phase 2 requirement that recommendations use the same matching logic."""
+    """Builds a ParsedJobDescription from a saved Job row, so recommendations
+    reuse the exact same scoring engine as the resume-vs-JD analysis flow."""
     return ParsedJobDescription(
         title=job.title,
         required_skills=job.required_skills,
@@ -26,11 +25,21 @@ def job_to_parsed_jd(job: Job) -> ParsedJobDescription:
 def recommend_jobs(
     db: Session,
     resume: ParsedResume,
+    search: str | None = None,
     work_mode: str | None = None,
     max_years: int | None = None,
     limit: int = 10,
 ) -> list[JobRecommendationOut]:
     stmt = select(Job)
+    if search:
+        pattern = f"%{search}%"
+        stmt = stmt.where(
+            or_(
+                Job.title.ilike(pattern),
+                Job.company.ilike(pattern),
+                Job.location.ilike(pattern),
+            )
+        )
     if work_mode:
         stmt = stmt.where(Job.work_mode == work_mode)
     if max_years is not None:
@@ -40,8 +49,7 @@ def recommend_jobs(
 
     recommendations: list[JobRecommendationOut] = []
     for job in jobs:
-        parsed_jd = job_to_parsed_jd(job)
-        result = compute_analysis(resume, parsed_jd)
+        result = compute_analysis(resume, job_to_parsed_jd(job))
 
         matched_skills = sorted(
             {s.name for s in result.matched_required} | {s.name for s in result.matched_preferred}

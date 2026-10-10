@@ -61,3 +61,12 @@ class ResumeOut(BaseModel):
     filename: str
     parsed: ParsedResume
     created_at: "datetime"
+    
+    
+class ResumeSummaryOut(BaseModel):
+    """A short description of a saved resume, for pickers and lists."""
+
+    id: uuid.UUID
+    filename: str
+    created_at: datetime
+    skill_count: int

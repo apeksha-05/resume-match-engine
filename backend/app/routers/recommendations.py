@@ -3,8 +3,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.core.auth import get_current_user_id
+from app.core.database import get_db
 from app.models.resume import Resume
 from app.schemas.recommendation import JobRecommendationOut, RecommendationRequest
 from app.schemas.resume import ParsedResume
@@ -28,6 +28,7 @@ def get_recommendations(
     return recommend_jobs(
         db=db,
         resume=parsed_resume,
+        search=payload.search,
         work_mode=payload.work_mode,
         max_years=payload.max_years,
         limit=payload.limit,

@@ -1,8 +1,8 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.schemas.job import JobOut
+from app.schemas.job import JobOut, WorkMode
 
 
 class JobRecommendationOut(BaseModel):
@@ -14,6 +14,7 @@ class JobRecommendationOut(BaseModel):
 
 class RecommendationRequest(BaseModel):
     resume_id: uuid.UUID
-    work_mode: str | None = None
-    max_years: int | None = None
-    limit: int = 10
+    search: str | None = Field(default=None, max_length=100)
+    work_mode: WorkMode | None = None
+    max_years: int | None = Field(default=None, ge=0, le=50)
+    limit: int = Field(default=10, ge=1, le=50)

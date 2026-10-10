@@ -97,3 +97,12 @@ export interface HistoryItem {
   overallScore: number;
   createdAt: string;
 }
+
+/** One row on the Jobs page: a job, plus fit details when ranked against a resume. */
+export interface JobListItem {
+  job: Job;
+  /** Present only when the list was ranked against a saved resume (0 to 100). */
+  score?: number;
+  matchedSkills?: string[];
+  missingSkills?: string[];
+}

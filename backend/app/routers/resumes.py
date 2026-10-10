@@ -1,15 +1,17 @@
 import uuid
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.core.auth import get_current_user_id
+from app.core.database import get_db
 from app.models.resume import Resume
-from app.schemas.resume import ResumeOut
+from app.schemas.resume import ResumeOut, ResumeSummaryOut
 from app.services.evidence_verification import filter_unverified_skills
 from app.services.pdf_extraction import PdfValidationError, extract_text_from_pdf
 from app.services.resume_extraction import extract_structured_resume
+from app.services.resume_summary import to_resume_summary
 from app.services.text_cleanup import clean_extracted_text
 
 router = APIRouter()
@@ -54,6 +56,24 @@ async def upload_resume(
             "created_at": resume.created_at,
         }
     )
+
+
+@router.get("/resumes", response_model=list[ResumeSummaryOut])
+def list_resumes(
+    db: Session = Depends(get_db),
+    user_id: uuid.UUID = Depends(get_current_user_id),
+    limit: int = Query(default=50, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> list[ResumeSummaryOut]:
+    stmt = (
+        select(Resume)
+        .where(Resume.user_id == user_id)
+        .order_by(Resume.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    rows = db.execute(stmt).scalars().all()
+    return [to_resume_summary(row) for row in rows]
 
 
 @router.get("/resumes/{resume_id}", response_model=ResumeOut)

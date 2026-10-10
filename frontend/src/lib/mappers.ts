@@ -1,5 +1,10 @@
-import type { ApiAnalysisDetail, ApiHistoryItem } from "@/lib/api-types";
-import type { AnalysisResult, HistoryItem } from "@/types";
+import type {
+  ApiAnalysisDetail,
+  ApiHistoryItem,
+  ApiJob,
+  ApiRecommendation,
+} from "@/lib/api-types";
+import type { AnalysisResult, HistoryItem, Job, JobListItem } from "@/types";
 
 export function toAnalysisResult(api: ApiAnalysisDetail): AnalysisResult {
   return {
@@ -46,5 +51,33 @@ export function toHistoryItem(api: ApiHistoryItem): HistoryItem {
     company: api.company,
     overallScore: api.overall_score,
     createdAt: api.created_at,
+  };
+}
+
+export function toJob(api: ApiJob): Job {
+  return {
+    id: api.id,
+    title: api.title,
+    company: api.company,
+    location: api.location,
+    workMode: api.work_mode,
+    minYears: api.min_years,
+    description: api.description,
+    requiredSkills: api.required_skills,
+    preferredSkills: api.preferred_skills,
+    isDemo: api.is_demo,
+  };
+}
+
+export function toJobListItem(api: ApiJob): JobListItem {
+  return { job: toJob(api) };
+}
+
+export function toRecommendationItem(api: ApiRecommendation): JobListItem {
+  return {
+    job: toJob(api.job),
+    score: api.score,
+    matchedSkills: api.matched_skills,
+    missingSkills: api.missing_skills,
   };
 }

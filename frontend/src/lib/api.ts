@@ -1,10 +1,15 @@
 import type {
   ApiAnalysisDetail,
   ApiHistoryItem,
+  ApiJobList,
+  ApiRecommendation,
   ApiResume,
+  ApiResumeSummary,
   CreateAnalysisBody,
+  RecommendationsBody,
 } from "@/lib/api-types";
 import { supabase } from "@/lib/supabase";
+import type { WorkMode } from "@/types";
 
 const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
@@ -110,4 +115,31 @@ export function listAnalyses(): Promise<ApiHistoryItem[]> {
 
 export function deleteAnalysis(id: string): Promise<void> {
   return request<void>(`/analyses/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export interface ListJobsParams {
+  search?: string;
+  workMode?: WorkMode;
+  maxYears?: number;
+}
+
+export function listJobs(params: ListJobsParams = {}): Promise<ApiJobList> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (params.workMode) query.set("work_mode", params.workMode);
+  if (params.maxYears !== undefined) query.set("max_years", String(params.maxYears));
+  query.set("limit", "100");
+  return request<ApiJobList>(`/jobs?${query.toString()}`);
+}
+
+export function listResumes(): Promise<ApiResumeSummary[]> {
+  return request<ApiResumeSummary[]>("/resumes");
+}
+
+export function getRecommendations(body: RecommendationsBody): Promise<ApiRecommendation[]> {
+  return request<ApiRecommendation[]>("/recommendations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }
