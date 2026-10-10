@@ -18,6 +18,8 @@ export interface CategoryScore {
   weight: number;
   /** Plain-English explanation of how this score was calculated */
   explanation: string;
+  /** False when the job gave nothing to score this category on. Defaults to true. */
+  applicable?: boolean;
 }
 
 export interface SkillMatch {

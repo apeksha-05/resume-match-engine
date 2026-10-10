@@ -1,4 +1,5 @@
-import { Download, Link as LinkIcon } from "lucide-react";
+import { Download } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CategoryScoreBar } from "@/components/CategoryScoreBar";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tabs,
   TabsContent,
@@ -19,29 +21,52 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { mockAnalysis } from "@/data/mockData";
+import { getAnalysis, getErrorMessage } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+import { toAnalysisResult } from "@/lib/mappers";
+import type { AnalysisResult } from "@/types";
 
-export function ResultsPage() {
-  const { id } = useParams();
+interface LoadedState {
+  id: string;
+  analysis: AnalysisResult | null;
+  error: string | null;
+}
 
-  if (id !== mockAnalysis.id) {
-    return (
-      <div>
-        <PageHeader
-          title="Analysis not found"
-          description="Only the demo analysis exists until the backend is connected in Phase 4."
-        />
-        <Button asChild>
-          <Link to="/results/demo">
-            <LinkIcon className="mr-2 size-4" />
-            Open the demo analysis
-          </Link>
-        </Button>
+function ResultsMessage({
+  title,
+  description,
+  actionTo,
+  actionLabel,
+}: {
+  title: string;
+  description: string;
+  actionTo: string;
+  actionLabel: string;
+}) {
+  return (
+    <div>
+      <PageHeader title={title} description={description} />
+      <Button asChild>
+        <Link to={actionTo}>{actionLabel}</Link>
+      </Button>
+    </div>
+  );
+}
+
+function ResultsLoading() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-1/2" />
+      <div className="grid gap-4 md:grid-cols-[auto_1fr]">
+        <Skeleton className="h-64 w-64" />
+        <Skeleton className="h-64 w-full" />
       </div>
-    );
-  }
+      <Skeleton className="h-40 w-full" />
+    </div>
+  );
+}
 
-  const analysis = mockAnalysis;
-
+function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
@@ -49,7 +74,7 @@ export function ResultsPage() {
           title={`${analysis.jobTitle} at ${analysis.company}`}
           description="Estimated fit indicator. This is not a hiring probability."
         />
-        <Button variant="outline" disabled title="PDF export arrives in Phase 8">
+        <Button variant="outline" disabled title="PDF export arrives in Phase 8C">
           <Download className="mr-2 size-4" />
           Download report
         </Button>
@@ -124,41 +149,55 @@ export function ResultsPage() {
             </TabsList>
 
             <TabsContent value="evidence" className="space-y-3 pt-4">
-              {analysis.evidence.map((item, index) => (
-                <div key={index} className="rounded-lg border p-3">
-                  <p className="text-sm font-medium">{item.requirement}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    "{item.snippet}"
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Similarity: {Math.round(item.similarity * 100)}%
-                  </p>
-                </div>
-              ))}
+              {analysis.evidence.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Not enough text on the resume or job description to compare
+                  passages.
+                </p>
+              ) : (
+                analysis.evidence.map((item, index) => (
+                  <div key={index} className="rounded-lg border p-3">
+                    <p className="text-sm font-medium">{item.requirement}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      "{item.snippet}"
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Similarity: {Math.round(item.similarity * 100)}%
+                    </p>
+                  </div>
+                ))
+              )}
             </TabsContent>
 
             <TabsContent value="suggestions" className="space-y-4 pt-4">
-              {analysis.suggestions.map((s) => (
-                <div key={s.id} className="rounded-lg border p-3">
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div>
-                      <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
-                        Original
-                      </p>
-                      <p className="text-sm">{s.original}</p>
+              {analysis.suggestions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No suggestions yet. They are generated from the project and
+                  work-experience bullet points found on your resume.
+                </p>
+              ) : (
+                analysis.suggestions.map((s) => (
+                  <div key={s.id} className="rounded-lg border p-3">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div>
+                        <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+                          Original
+                        </p>
+                        <p className="text-sm">{s.original}</p>
+                      </div>
+                      <div>
+                        <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+                          Suggested
+                        </p>
+                        <p className="text-sm">{s.suggested}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
-                        Suggested
-                      </p>
-                      <p className="text-sm">{s.suggested}</p>
-                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Why: {s.whyChanged}
+                    </p>
                   </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Why: {s.whyChanged}
-                  </p>
-                </div>
-              ))}
+                ))
+              )}
               <p className="text-xs text-muted-foreground">
                 Suggestions rephrase what you already wrote. Only keep wording
                 that stays truthful to your real experience.
@@ -166,24 +205,31 @@ export function ResultsPage() {
             </TabsContent>
 
             <TabsContent value="roadmap" className="space-y-4 pt-4">
-              {analysis.roadmap.map((item) => (
-                <div key={item.skill} className="rounded-lg border p-3">
-                  <div className="mb-1 flex items-center justify-between">
-                    <p className="font-medium">{item.skill}</p>
-                    <Badge variant="outline">
-                      ~{item.estimatedWeeks} weeks
-                    </Badge>
+              {analysis.roadmap.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No missing required skills, so no learning roadmap is needed
+                  for this job.
+                </p>
+              ) : (
+                analysis.roadmap.map((item) => (
+                  <div key={item.skill} className="rounded-lg border p-3">
+                    <div className="mb-1 flex items-center justify-between">
+                      <p className="font-medium">{item.skill}</p>
+                      <Badge variant="outline">
+                        ~{item.estimatedWeeks} weeks
+                      </Badge>
+                    </div>
+                    <p className="mb-2 text-sm text-muted-foreground">
+                      {item.reason}
+                    </p>
+                    <ul className="list-inside list-disc space-y-1 text-sm">
+                      {item.steps.map((step, i) => (
+                        <li key={i}>{step}</li>
+                      ))}
+                    </ul>
                   </div>
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    {item.reason}
-                  </p>
-                  <ul className="list-inside list-disc space-y-1 text-sm">
-                    {item.steps.map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                ))
+              )}
             </TabsContent>
 
             <TabsContent value="how" className="space-y-2 pt-4">
@@ -198,4 +244,71 @@ export function ResultsPage() {
       </Card>
     </div>
   );
+}
+
+export function ResultsPage() {
+  const { id } = useParams();
+  const { user, isLoading: authLoading } = useAuth();
+  const [loaded, setLoaded] = useState<LoadedState | null>(null);
+
+  const isDemo = id === mockAnalysis.id;
+  const shouldFetch = Boolean(id) && !isDemo && Boolean(user);
+
+  useEffect(() => {
+    if (!shouldFetch || !id) return;
+
+    let cancelled = false;
+    getAnalysis(id)
+      .then((result) => {
+        if (!cancelled) {
+          setLoaded({ id, analysis: toAnalysisResult(result), error: null });
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setLoaded({
+            id,
+            analysis: null,
+            error: getErrorMessage(error, "Could not load this analysis."),
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, shouldFetch]);
+
+  if (isDemo) {
+    return <AnalysisDashboard analysis={mockAnalysis} />;
+  }
+  if (authLoading) {
+    return <ResultsLoading />;
+  }
+  if (!user) {
+    return (
+      <ResultsMessage
+        title="Log in to view this analysis"
+        description="Saved analyses are private to your account."
+        actionTo="/login"
+        actionLabel="Log in"
+      />
+    );
+  }
+
+  const current = loaded && loaded.id === id ? loaded : null;
+  if (current === null) {
+    return <ResultsLoading />;
+  }
+  if (current.analysis === null) {
+    return (
+      <ResultsMessage
+        title="Analysis not found"
+        description={current.error ?? "This analysis could not be loaded."}
+        actionTo="/history"
+        actionLabel="Back to history"
+      />
+    );
+  }
+  return <AnalysisDashboard analysis={current.analysis} />;
 }

@@ -15,8 +15,19 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { defaultWeights } from "@/data/mockData";
+import {
+  createAnalysis,
+  deleteResume,
+  getErrorMessage,
+  uploadResume,
+} from "@/lib/api";
 import { formatFileSize, validateResumeFile } from "@/lib/validation";
 import type { Weights } from "@/types";
+
+type Stage = "idle" | "uploading" | "analyzing";
+
+const MIN_JD_LENGTH = 50;
+const MAX_JD_LENGTH = 20000;
 
 export function NewAnalysisPage() {
   const navigate = useNavigate();
@@ -27,6 +38,8 @@ export function NewAnalysisPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [weights, setWeights] = useState<Weights>(defaultWeights);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [stage, setStage] = useState<Stage>("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = (candidate: File) => {
@@ -47,16 +60,49 @@ export function NewAnalysisPage() {
     if (dropped) handleFile(dropped);
   };
 
-  const canSubmit = file !== null && jobDescription.trim().length >= 50 && !isSubmitting;
+  const canSubmit =
+    file !== null &&
+    jobDescription.trim().length >= MIN_JD_LENGTH &&
+    !isSubmitting;
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!file || !canSubmit) return;
+
     setIsSubmitting(true);
-    // No backend yet (that's Phase 4+). We simulate processing time,
-    // then send the user to the existing demo analysis.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    navigate("/results/demo");
+    setSubmitError(null);
+    let uploadedResumeId: string | null = null;
+
+    try {
+      setStage("uploading");
+      const resume = await uploadResume(file);
+      uploadedResumeId = resume.id;
+
+      setStage("analyzing");
+      const analysis = await createAnalysis({
+        resume_id: resume.id,
+        job_description_text: jobDescription.trim(),
+        weights,
+      });
+      navigate(`/results/${analysis.id}`);
+    } catch (error) {
+      if (uploadedResumeId) {
+        // Don't leave an orphaned resume record if the analysis step failed.
+        deleteResume(uploadedResumeId).catch(() => undefined);
+      }
+      setSubmitError(
+        getErrorMessage(error, "Something went wrong. Please try again."),
+      );
+      setIsSubmitting(false);
+      setStage("idle");
+    }
   };
+
+  const buttonLabel =
+    stage === "uploading"
+      ? "Uploading resume..."
+      : stage === "analyzing"
+        ? "Analyzing..."
+        : "Run analysis";
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -69,7 +115,11 @@ export function NewAnalysisPage() {
         <Card>
           <CardHeader>
             <CardTitle>1. Resume (PDF)</CardTitle>
-            <CardDescription>Maximum size 5 MB, PDF only.</CardDescription>
+            <CardDescription>
+              Maximum size 5 MB, PDF only. Your PDF is processed in memory and
+              is not stored. Only the extracted skills and short text snippets
+              are saved to your account.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {!file ? (
@@ -97,6 +147,7 @@ export function NewAnalysisPage() {
                   type="file"
                   accept="application/pdf"
                   className="hidden"
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => {
                     const selected = e.target.files?.[0];
                     if (selected) handleFile(selected);
@@ -118,6 +169,7 @@ export function NewAnalysisPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setFile(null)}
+                  disabled={isSubmitting}
                   aria-label="Remove file"
                 >
                   <X className="size-4" />
@@ -138,7 +190,8 @@ export function NewAnalysisPage() {
           <CardHeader>
             <CardTitle>2. Job description</CardTitle>
             <CardDescription>
-              Paste the full job posting text (at least 50 characters).
+              Paste the full job posting text (at least {MIN_JD_LENGTH}{" "}
+              characters).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,12 +201,14 @@ export function NewAnalysisPage() {
             <Textarea
               id="jd"
               rows={8}
+              maxLength={MAX_JD_LENGTH}
               placeholder="Paste the job description here..."
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
             />
             <p className="mt-1 text-right text-xs text-muted-foreground">
-              {jobDescription.trim().length} / 50 characters minimum
+              {jobDescription.trim().length} / {MIN_JD_LENGTH} characters
+              minimum
             </p>
           </CardContent>
         </Card>
@@ -162,8 +217,8 @@ export function NewAnalysisPage() {
           <CardHeader>
             <CardTitle>3. Category weights</CardTitle>
             <CardDescription>
-              Optional. Adjust how much each category counts toward the
-              overall score.
+              Optional. Adjust how much each category counts toward the overall
+              score.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -171,9 +226,22 @@ export function NewAnalysisPage() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
+        {submitError && (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Analysis failed</AlertTitle>
+            <AlertDescription>{submitError}</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex items-center justify-end gap-3">
+          {stage === "analyzing" && (
+            <p className="text-xs text-muted-foreground">
+              The first analysis after the server starts can take a minute.
+            </p>
+          )}
           <Button size="lg" disabled={!canSubmit} onClick={handleSubmit}>
-            {isSubmitting ? "Analyzing..." : "Run analysis"}
+            {buttonLabel}
           </Button>
         </div>
       </div>

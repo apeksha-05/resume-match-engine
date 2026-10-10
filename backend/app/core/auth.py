@@ -1,7 +1,8 @@
 """Real Supabase JWT verification using the project's JWKS endpoint.
-Replaces app/core/dev_auth.py's hardcoded placeholder user.
+Replaces the old development-only placeholder user.
 """
 
+import logging
 import uuid
 from functools import lru_cache
 
@@ -15,10 +16,13 @@ from app.core.config import get_settings
 settings = get_settings()
 _security = HTTPBearer()
 
+# Uses uvicorn's own logger so messages always show in the server terminal.
+logger = logging.getLogger("uvicorn.error")
+
 
 @lru_cache
 def _get_jwks_client() -> PyJWKClient:
-    jwks_url = f"{settings.supabase_url}/auth/v1/.well-known/jwks.json"
+    jwks_url = f"{settings.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
     return PyJWKClient(jwks_url, cache_keys=True)
 
 
@@ -28,7 +32,11 @@ def get_current_user_id(
     """FastAPI dependency: verifies the bearer token's signature against
     Supabase's public JWKS and returns the authenticated user's ID (the
     token's 'sub' claim). Raises 401 if the token is missing, expired, or
-    invalid."""
+    invalid. The detailed reason is logged on the server only."""
+    if not settings.supabase_url:
+        logger.error("SUPABASE_URL is not set in backend/.env, so tokens cannot be verified.")
+        raise HTTPException(status_code=500, detail="Authentication is not configured on the server.")
+
     token = credentials.credentials
 
     try:
@@ -40,6 +48,8 @@ def get_current_user_id(
             audience="authenticated",
         )
     except jwt.PyJWTError as exc:
+        # Log the error type and message only. Never log the token itself.
+        logger.warning("JWT verification failed: %s: %s", type(exc).__name__, exc)
         raise HTTPException(status_code=401, detail="Invalid or expired authentication token") from exc
 
     user_id_str = payload.get("sub")
