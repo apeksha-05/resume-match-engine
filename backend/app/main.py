@@ -23,3 +23,8 @@ app.include_router(resumes.router, prefix="/api/v1", tags=["resumes"])
 app.include_router(job_descriptions.router, prefix="/api/v1", tags=["job-descriptions"])
 app.include_router(analyses.router, prefix="/api/v1", tags=["analyses"])
 app.include_router(recommendations.router, prefix="/api/v1", tags=["recommendations"])
+
+
+from app.routers import analyses, config, health, job_descriptions, jobs, me, recommendations, resumes
+...
+app.include_router(me.router, prefix="/api/v1", tags=["me"])

@@ -1,5 +1,7 @@
-import { Target } from "lucide-react";
+import { LogOut, Target } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -11,6 +13,8 @@ const navItems = [
 ];
 
 export function AppLayout() {
+  const { user, signOut } = useAuth();
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
@@ -19,7 +23,7 @@ export function AppLayout() {
             <Target className="size-5" />
             <span>ResumeMatch</span>
           </Link>
-          <nav className="flex gap-1 overflow-x-auto">
+          <nav className="flex flex-1 gap-1 overflow-x-auto">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -27,9 +31,7 @@ export function AppLayout() {
                 className={({ isActive }) =>
                   cn(
                     "whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted",
-                    isActive
-                      ? "bg-muted font-medium text-foreground"
-                      : "text-muted-foreground",
+                    isActive ? "bg-muted font-medium text-foreground" : "text-muted-foreground",
                   )
                 }
               >
@@ -37,6 +39,24 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
+              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                <LogOut className="mr-1 size-4" />
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to="/signup">Sign up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -45,8 +65,7 @@ export function AppLayout() {
       </main>
 
       <footer className="border-t py-4 text-center text-xs text-muted-foreground">
-        Scores are estimated fit indicators, not hiring probabilities. Sample
-        jobs and data are fictional demo data.
+        Scores are estimated fit indicators, not hiring probabilities. Sample jobs and data are fictional demo data.
       </footer>
     </div>
   );

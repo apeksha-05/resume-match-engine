@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dev_auth import get_current_user_id
+from app.core.auth import get_current_user_id
 from app.models.resume import Resume
 from app.schemas.recommendation import JobRecommendationOut, RecommendationRequest
 from app.schemas.resume import ParsedResume

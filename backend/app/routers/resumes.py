@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dev_auth import get_current_user_id
+from app.core.auth import get_current_user_id
 from app.models.resume import Resume
 from app.schemas.resume import ResumeOut
 from app.services.evidence_verification import filter_unverified_skills

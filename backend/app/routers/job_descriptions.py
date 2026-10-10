@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dev_auth import get_current_user_id
+from app.core.auth import get_current_user_id
 from app.models.job_description import JobDescription
 from app.schemas.job_description import JobDescriptionIn, JobDescriptionOut
 from app.services.jd_extraction import extract_structured_jd

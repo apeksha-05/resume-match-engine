@@ -22,9 +22,8 @@ class Settings(BaseSettings):
     # development or avoiding API usage during routine testing.
     force_mock_llm: bool = False
 
-    # Filled in during Phase 8 when Supabase Auth is wired up.
+    # Used by app/core/auth.py to verify JWTs via Supabase's JWKS endpoint.
     supabase_url: str = ""
-    supabase_jwt_secret: str = ""
 
     # Comma-separated list of allowed frontend origins for CORS.
     cors_origins: str = "http://localhost:5173"
