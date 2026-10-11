@@ -22,8 +22,13 @@ class Settings(BaseSettings):
     # development or avoiding API usage during routine testing.
     force_mock_llm: bool = False
 
-    # Used by app/core/auth.py to verify JWTs via Supabase's JWKS endpoint.
+        # Used by app/core/auth.py to verify JWTs via Supabase's JWKS endpoint.
     supabase_url: str = ""
+
+    # SERVER-ONLY secret key (sb_secret_... or the legacy service_role key).
+    # Used solely to delete a user's login when they delete their account.
+    # It must never reach the frontend or any log.
+    supabase_secret_key: str = ""
 
     # Comma-separated list of allowed frontend origins for CORS.
     cors_origins: str = "http://localhost:5173"

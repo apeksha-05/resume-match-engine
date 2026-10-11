@@ -112,3 +112,9 @@ export interface RecommendationsBody {
   max_years?: number;
   limit?: number;
 }
+
+export interface ApiAccountSummary {
+  resumes: number;
+  analyses: number;
+  job_descriptions: number;
+}

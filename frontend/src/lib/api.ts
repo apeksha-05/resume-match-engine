@@ -1,4 +1,5 @@
 import type {
+  ApiAccountSummary,
   ApiAnalysisDetail,
   ApiHistoryItem,
   ApiJobList,
@@ -153,4 +154,16 @@ export function getRecommendations(body: RecommendationsBody): Promise<ApiRecomm
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+export function getAccountSummary(): Promise<ApiAccountSummary> {
+  return request<ApiAccountSummary>("/account/summary");
+}
+
+export function deleteAllMyData(): Promise<void> {
+  return request<void>("/account/data", { method: "DELETE" });
+}
+
+export function deleteMyAccount(): Promise<void> {
+  return request<void>("/account", { method: "DELETE" });
 }
