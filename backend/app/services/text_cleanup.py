@@ -2,7 +2,6 @@
 # PyMuPDF sometimes renders these ligatures as the wrong Unicode character.
 LIGATURE_FIXES = {
     "Ɵ": "ti",
-    "Ü": "k",  # seen in "SÜills" -> "Skills" in some exports
     "Οͺ": "ffi",
 }
 

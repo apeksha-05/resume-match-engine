@@ -3,22 +3,33 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user_id, require_existing_user
 from app.core.database import get_db
-from app.core.auth import get_current_user_id
+from app.core.limits import limit_job_descriptions
 from app.models.job_description import JobDescription
 from app.schemas.job_description import JobDescriptionIn, JobDescriptionOut
-from app.services.jd_extraction import extract_structured_jd
+from app.services.jd_extraction import JdExtractionError, extract_structured_jd
 
 router = APIRouter()
 
 
-@router.post("/job-descriptions", response_model=JobDescriptionOut, status_code=201)
+@router.post(
+    "/job-descriptions",
+    response_model=JobDescriptionOut,
+    status_code=201,
+    dependencies=[Depends(limit_job_descriptions), Depends(require_existing_user)],
+)
 def submit_job_description(
     payload: JobDescriptionIn,
     db: Session = Depends(get_db),
     user_id: uuid.UUID = Depends(get_current_user_id),
 ) -> JobDescriptionOut:
-    parsed = extract_structured_jd(payload.text)
+    try:
+        parsed = extract_structured_jd(payload.text)
+    except JdExtractionError as exc:
+        raise HTTPException(
+            status_code=503, detail="Job description analysis is currently unavailable."
+        ) from exc
 
     jd = JobDescription(
         user_id=user_id,

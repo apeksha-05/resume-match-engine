@@ -19,6 +19,7 @@ from app.schemas.job_description import ParsedJobDescription
 from app.schemas.resume import ParsedResume
 from app.services.embedding_service import cosine_similarity, embed_texts
 from app.services.experience_parsing import total_relevant_years
+from app.services.skill_normalization import normalize_skill, normalize_skill_list
 
 SIMILARITY_FLOOR = 0.25
 SIMILARITY_CEILING = 0.75
@@ -35,29 +36,37 @@ def _rescale_similarity(raw_similarity: float) -> float:
 
 
 def _score_skills(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[float | None, str, dict]:
-    resume_skill_names = {s.name for s in resume.skills}
-    resume_skill_evidence = {s.name: s.evidence for s in resume.skills}
+    # Skills are compared by canonical, case-insensitive name, so "JS" matches "JavaScript".
+    resume_evidence: dict[str, str] = {}
+    for skill in resume.skills:
+        name = normalize_skill(skill.name)
+        if name:
+            resume_evidence.setdefault(name.casefold(), skill.evidence)
 
-    required = set(jd.required_skills)
-    preferred = set(jd.preferred_skills)
+    required = {name.casefold(): name for name in normalize_skill_list(jd.required_skills)}
+    preferred = {
+        name.casefold(): name
+        for name in normalize_skill_list(jd.preferred_skills)
+        if name.casefold() not in required
+    }
 
     if not required and not preferred:
         return None, "The job description does not list any required or preferred skills.", {}
 
-    matched_required = sorted(required & resume_skill_names)
-    missing_required = sorted(required - resume_skill_names)
-    matched_preferred = sorted(preferred & resume_skill_names)
-    missing_preferred = sorted(preferred - resume_skill_names)
+    def split(wanted: dict[str, str]) -> tuple[list[SkillMatch], list[str]]:
+        matched = [
+            SkillMatch(name=name, evidence=resume_evidence[key])
+            for key, name in sorted(wanted.items(), key=lambda item: item[1])
+            if key in resume_evidence
+        ]
+        missing = sorted(name for key, name in wanted.items() if key not in resume_evidence)
+        return matched, missing
 
-    if required:
-        required_ratio = len(matched_required) / len(required)
-    else:
-        required_ratio = None
+    matched_required, missing_required = split(required)
+    matched_preferred, missing_preferred = split(preferred)
 
-    if preferred:
-        preferred_ratio = len(matched_preferred) / len(preferred)
-    else:
-        preferred_ratio = None
+    required_ratio = len(matched_required) / len(required) if required else None
+    preferred_ratio = len(matched_preferred) / len(preferred) if preferred else None
 
     if required_ratio is not None and preferred_ratio is not None:
         score = 0.8 * required_ratio + 0.2 * preferred_ratio
@@ -81,13 +90,9 @@ def _score_skills(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[float
         )
 
     details = {
-        "matched_required": [
-            SkillMatch(name=name, evidence=resume_skill_evidence.get(name, "")) for name in matched_required
-        ],
+        "matched_required": matched_required,
         "missing_required": missing_required,
-        "matched_preferred": [
-            SkillMatch(name=name, evidence=resume_skill_evidence.get(name, "")) for name in matched_preferred
-        ],
+        "matched_preferred": matched_preferred,
         "missing_preferred": missing_preferred,
     }
     return score, explanation, details

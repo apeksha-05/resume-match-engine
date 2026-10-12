@@ -1,10 +1,11 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.auth import get_current_user_id
+from app.core.auth import get_current_user_id, require_existing_user
 from app.core.database import get_db
 from app.core.limits import limit_uploads
 from app.models.resume import Resume
@@ -15,12 +16,14 @@ from app.services.pdf_extraction import (
     PdfValidationError,
     extract_text_from_pdf,
 )
+from app.services.prompt_safety import looks_like_prompt_injection
 from app.services.resume_extraction import ResumeExtractionError, extract_structured_resume
 from app.services.resume_summary import to_resume_summary
 from app.services.text_cleanup import clean_extracted_text
 from app.services.uploads import read_upload_limited, safe_filename
 
 router = APIRouter()
+logger = logging.getLogger("uvicorn.error")
 
 ALLOWED_CONTENT_TYPES = {"application/pdf"}
 
@@ -29,7 +32,7 @@ ALLOWED_CONTENT_TYPES = {"application/pdf"}
     "/resumes",
     response_model=ResumeOut,
     status_code=201,
-    dependencies=[Depends(limit_uploads)],
+    dependencies=[Depends(limit_uploads), Depends(require_existing_user)],
 )
 async def upload_resume(
     file: UploadFile = File(...),
@@ -47,6 +50,13 @@ async def upload_resume(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     cleaned_text = clean_extracted_text(raw_text)
+
+    if looks_like_prompt_injection(cleaned_text):
+        # Log the fact only, never the text. The resume is still processed as plain data.
+        logger.warning(
+            "An uploaded resume contains text that looks like instructions to an AI system. "
+            "It is treated as data only."
+        )
 
     try:
         parsed = extract_structured_resume(cleaned_text)

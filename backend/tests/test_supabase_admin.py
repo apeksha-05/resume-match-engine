@@ -7,8 +7,10 @@ import pytest
 from app.services import supabase_admin
 from app.services.supabase_admin import (
     AuthDeletionError,
+    UserLookupError,
     auth_deletion_configured,
     delete_auth_user,
+    user_exists,
 )
 
 SECRET = "sb_secret_test_value_123"
@@ -101,3 +103,65 @@ def test_delete_raises_when_not_configured(monkeypatch: pytest.MonkeyPatch):
 
     with pytest.raises(AuthDeletionError):
         delete_auth_user(USER_ID)
+        
+def test_user_exists_returns_true_for_a_200(monkeypatch: pytest.MonkeyPatch):
+    configure(monkeypatch)
+    captured: dict = {}
+
+    def fake_get(url, headers, timeout):
+        captured.update(url=url, headers=headers)
+        return fake_response(200, "{}")
+
+    monkeypatch.setattr(supabase_admin.httpx, "get", fake_get)
+
+    assert user_exists(USER_ID) is True
+    assert captured["url"] == f"{BASE_URL}/auth/v1/admin/users/{USER_ID}"
+    assert captured["headers"]["apikey"] == SECRET
+
+
+def test_user_exists_returns_false_for_a_404(monkeypatch: pytest.MonkeyPatch):
+    configure(monkeypatch)
+    monkeypatch.setattr(
+        supabase_admin.httpx, "get", lambda url, headers, timeout: fake_response(404)
+    )
+
+    assert user_exists(USER_ID) is False
+
+
+def test_user_exists_raises_for_other_statuses_without_leaking_the_key(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    configure(monkeypatch)
+    monkeypatch.setattr(
+        supabase_admin.httpx, "get", lambda url, headers, timeout: fake_response(500, "oops")
+    )
+
+    with pytest.raises(UserLookupError) as error:
+        user_exists(USER_ID)
+
+    assert "500" in str(error.value)
+    assert SECRET not in str(error.value)
+
+
+def test_user_exists_raises_on_network_failure(monkeypatch: pytest.MonkeyPatch):
+    configure(monkeypatch)
+
+    def boom(url, headers, timeout):
+        raise httpx.ConnectError("no route to host")
+
+    monkeypatch.setattr(supabase_admin.httpx, "get", boom)
+
+    with pytest.raises(UserLookupError):
+        user_exists(USER_ID)
+
+
+def test_user_exists_raises_when_not_configured(monkeypatch: pytest.MonkeyPatch):
+    configure(monkeypatch, key="")
+
+    def must_not_be_called(url, headers, timeout):
+        raise AssertionError("No request should be sent without a key.")
+
+    monkeypatch.setattr(supabase_admin.httpx, "get", must_not_be_called)
+
+    with pytest.raises(UserLookupError):
+        user_exists(USER_ID)

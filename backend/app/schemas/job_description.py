@@ -16,7 +16,9 @@ class ParsedJobDescription(BaseModel):
 
 
 class JobDescriptionIn(BaseModel):
-    text: str = Field(min_length=50, description="The full pasted job description text")
+    text: str = Field(
+        min_length=50, max_length=20000, description="The full pasted job description text"
+    )
 
 
 class JobDescriptionOut(BaseModel):
