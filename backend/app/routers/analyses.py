@@ -1,24 +1,21 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user_id
 from app.core.database import get_db
+from app.core.limits import limit_analyses, limit_reports
 from app.models.analysis import Analysis
 from app.models.job import Job
 from app.models.job_description import JobDescription
 from app.models.resume import Resume
-from app.schemas.analysis import Weights
 from app.schemas.analysis_records import (
     AnalysisCreateIn,
     AnalysisDetailOut,
     AnalysisHistoryItem,
 )
-from app.schemas.feedback import AnalysisFullResult
-from app.schemas.job_description import ParsedJobDescription
 from app.schemas.resume import ParsedResume
 from app.services.analysis_records import (
     pack_analysis,
@@ -34,20 +31,12 @@ from app.services.report_pdf import build_report_pdf
 router = APIRouter()
 
 
-class AnalysisPreviewRequest(BaseModel):
-    resume: ParsedResume
-    job_description: ParsedJobDescription
-    weights: Weights | None = None
-
-
-@router.post("/analyses/preview", response_model=AnalysisFullResult)
-def preview_analysis(payload: AnalysisPreviewRequest) -> AnalysisFullResult:
-    """Computes score + suggestions + roadmap without saving anything.
-    A developer tool for trying the scoring engine from /docs."""
-    return compute_full_analysis(payload.resume, payload.job_description, payload.weights)
-
-
-@router.post("/analyses", response_model=AnalysisDetailOut, status_code=201)
+@router.post(
+    "/analyses",
+    response_model=AnalysisDetailOut,
+    status_code=201,
+    dependencies=[Depends(limit_analyses)],
+)
 def create_analysis(
     payload: AnalysisCreateIn,
     db: Session = Depends(get_db),
@@ -143,8 +132,12 @@ def delete_analysis(
         raise HTTPException(status_code=404, detail="Analysis not found")
     db.delete(row)
     db.commit()
-    
-@router.get("/analyses/{analysis_id}/report.pdf")
+
+
+@router.get(
+    "/analyses/{analysis_id}/report.pdf",
+    dependencies=[Depends(limit_reports)],
+)
 def download_report(
     analysis_id: uuid.UUID,
     db: Session = Depends(get_db),

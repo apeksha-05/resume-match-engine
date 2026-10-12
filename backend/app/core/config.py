@@ -32,6 +32,11 @@ class Settings(BaseSettings):
 
     # Comma-separated list of allowed frontend origins for CORS.
     cors_origins: str = "http://localhost:5173"
+    
+     # Request protections (see app/core/security_middleware.py and rate_limit.py).
+    rate_limit_enabled: bool = True
+    max_request_bytes: int = 6 * 1024 * 1024  # a little above the 5 MB PDF limit
+    per_ip_requests_per_minute: int = 120
 
     @property
     def cors_origins_list(self) -> list[str]:

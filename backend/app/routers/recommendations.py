@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user_id
 from app.core.database import get_db
+from app.core.limits import limit_recommendations
 from app.models.resume import Resume
 from app.schemas.recommendation import JobRecommendationOut, RecommendationRequest
 from app.schemas.resume import ParsedResume
@@ -13,7 +14,11 @@ from app.services.recommendation import recommend_jobs
 router = APIRouter()
 
 
-@router.post("/recommendations", response_model=list[JobRecommendationOut])
+@router.post(
+    "/recommendations",
+    response_model=list[JobRecommendationOut],
+    dependencies=[Depends(limit_recommendations)],
+)
 def get_recommendations(
     payload: RecommendationRequest,
     db: Session = Depends(get_db),

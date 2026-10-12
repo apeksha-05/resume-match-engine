@@ -6,20 +6,31 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user_id
 from app.core.database import get_db
+from app.core.limits import limit_uploads
 from app.models.resume import Resume
 from app.schemas.resume import ResumeOut, ResumeSummaryOut
 from app.services.evidence_verification import filter_unverified_skills
-from app.services.pdf_extraction import PdfValidationError, extract_text_from_pdf
-from app.services.resume_extraction import extract_structured_resume
+from app.services.pdf_extraction import (
+    MAX_FILE_SIZE_BYTES,
+    PdfValidationError,
+    extract_text_from_pdf,
+)
+from app.services.resume_extraction import ResumeExtractionError, extract_structured_resume
 from app.services.resume_summary import to_resume_summary
 from app.services.text_cleanup import clean_extracted_text
+from app.services.uploads import read_upload_limited, safe_filename
 
 router = APIRouter()
 
 ALLOWED_CONTENT_TYPES = {"application/pdf"}
 
 
-@router.post("/resumes", response_model=ResumeOut, status_code=201)
+@router.post(
+    "/resumes",
+    response_model=ResumeOut,
+    status_code=201,
+    dependencies=[Depends(limit_uploads)],
+)
 async def upload_resume(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -28,7 +39,7 @@ async def upload_resume(
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
-    file_bytes = await file.read()
+    file_bytes = await read_upload_limited(file, MAX_FILE_SIZE_BYTES)
 
     try:
         raw_text = extract_text_from_pdf(file_bytes)
@@ -36,12 +47,19 @@ async def upload_resume(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     cleaned_text = clean_extracted_text(raw_text)
-    parsed = extract_structured_resume(cleaned_text)
+
+    try:
+        parsed = extract_structured_resume(cleaned_text)
+    except ResumeExtractionError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="The resume could not be analyzed right now. Please try again.",
+        ) from exc
     parsed = filter_unverified_skills(parsed, cleaned_text)
 
     resume = Resume(
         user_id=user_id,
-        filename=file.filename or "unknown.pdf",
+        filename=safe_filename(file.filename),
         parsed=parsed.model_dump(mode="json"),
     )
     db.add(resume)
