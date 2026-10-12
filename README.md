@@ -7,3 +7,4 @@ An explainable resume-to-job matching app built with React, FastAPI, PostgreSQL 
 ## Status
 
 - [x] Phase 1: Environment and project setup
+- [x] Phases 2-9: design, frontend, backend, matching engine, security hardening (see docs/)

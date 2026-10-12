@@ -6,6 +6,7 @@ import type {
   ApiRecommendation,
   ApiResume,
   ApiResumeSummary,
+  ApiStatus,
   CreateAnalysisBody,
   RecommendationsBody,
 } from "@/lib/api-types";
@@ -166,4 +167,8 @@ export function deleteAllMyData(): Promise<void> {
 
 export function deleteMyAccount(): Promise<void> {
   return request<void>("/account", { method: "DELETE" });
+}
+
+export function getStatus(): Promise<ApiStatus> {
+  return request<ApiStatus>("/config/status");
 }

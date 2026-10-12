@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
+import { ModeBanner } from "@/components/ModeBanner";
 
 const navItems = [
   { to: "/analyze", label: "New Analysis" },
@@ -59,6 +60,8 @@ export function AppLayout() {
           )}
         </div>
       </header>
+
+      <ModeBanner />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <Outlet />

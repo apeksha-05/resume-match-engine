@@ -118,3 +118,7 @@ export interface ApiAccountSummary {
   analyses: number;
   job_descriptions: number;
 }
+
+export interface ApiStatus {
+  extraction_mode: "mock" | "ai";
+}
