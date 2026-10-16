@@ -35,8 +35,7 @@ def generate_suggestions_mock(resume: ParsedResume) -> list[BulletSuggestion]:
         # itself, and suggest naming them explicitly. We only ever use
         # skill names the person already listed elsewhere, never new ones.
         mentioned_elsewhere = [
-            name for name in resume_skill_names
-            if name.lower() not in bullet.lower()
+            name for name in resume_skill_names if name.lower() not in bullet.lower()
         ]
 
         if not mentioned_elsewhere:

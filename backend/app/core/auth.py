@@ -40,7 +40,9 @@ def get_current_user_id(
     """
     if not settings.supabase_url:
         logger.error("SUPABASE_URL is not set in backend/.env, so tokens cannot be verified.")
-        raise HTTPException(status_code=500, detail="Authentication is not configured on the server.")
+        raise HTTPException(
+            status_code=500, detail="Authentication is not configured on the server."
+        )
 
     token = credentials.credentials
 

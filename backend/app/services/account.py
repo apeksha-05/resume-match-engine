@@ -9,7 +9,9 @@ from app.models.resume import Resume
 from app.schemas.account import AccountSummaryOut
 
 
-def _count(db: Session, model: type[Resume] | type[Analysis] | type[JobDescription], user_id: uuid.UUID) -> int:
+def _count(
+    db: Session, model: type[Resume] | type[Analysis] | type[JobDescription], user_id: uuid.UUID
+) -> int:
     statement = select(func.count()).select_from(model).where(model.user_id == user_id)
     return db.execute(statement).scalar_one()
 

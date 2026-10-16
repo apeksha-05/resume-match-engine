@@ -62,7 +62,9 @@ def _extract_structured_resume_real(resume_text: str) -> ParsedResume:
     except Exception as exc:
         # Log only the kind of failure. Messages can contain request details.
         logger.warning("AI extraction request failed: %s", type(exc).__name__)
-        raise ResumeExtractionError("The AI service could not process this resume right now.") from exc
+        raise ResumeExtractionError(
+            "The AI service could not process this resume right now."
+        ) from exc
 
     try:
         return ParsedResume.model_validate(json.loads(response.text))

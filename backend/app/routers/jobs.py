@@ -16,7 +16,9 @@ def list_jobs(
     db: Session = Depends(get_db),
     search: str | None = Query(default=None, description="Matches title, company, or location"),
     work_mode: WorkMode | None = Query(default=None),
-    max_years: int | None = Query(default=None, ge=0, description="Only jobs requiring at most this many years"),
+    max_years: int | None = Query(
+        default=None, ge=0, description="Only jobs requiring at most this many years"
+    ),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> JobListOut:

@@ -8,14 +8,18 @@ from pydantic import BaseModel, Field
 
 class EvidencedSkill(BaseModel):
     name: str = Field(description="The skill name, as close to standard naming as possible")
-    evidence: str = Field(description="The exact snippet from the resume text that mentions this skill")
+    evidence: str = Field(
+        description="The exact snippet from the resume text that mentions this skill"
+    )
 
 
 class WorkExperience(BaseModel):
     job_title: str
     company: str
     duration: str = Field(description="As written in the resume, e.g. 'Jan 2024 - Present'")
-    responsibilities: list[str] = Field(description="Bullet points describing the role, copied or lightly condensed from the resume")
+    responsibilities: list[str] = Field(
+        description="Bullet points describing the role, copied or lightly condensed from the resume"
+    )
 
 
 class Education(BaseModel):
@@ -55,14 +59,15 @@ class ResumeExtractionOut(BaseModel):
     filename: str
     word_count: int
     parsed: ParsedResume
-    
+
+
 class ResumeOut(BaseModel):
     id: "uuid.UUID"
     filename: str
     parsed: ParsedResume
     created_at: "datetime"
-    
-    
+
+
 class ResumeSummaryOut(BaseModel):
     """A short description of a saved resume, for pickers and lists."""
 

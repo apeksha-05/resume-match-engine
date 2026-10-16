@@ -53,7 +53,9 @@ def extract_structured_jd_mock(jd_text: str) -> ParsedJobDescription:
     # that's the more specific/explicit signal.
     required_skills -= preferred_skills
 
-    first_line = next((line.strip() for line in jd_text.splitlines() if line.strip()), "Untitled role")
+    first_line = next(
+        (line.strip() for line in jd_text.splitlines() if line.strip()), "Untitled role"
+    )
     title_guess = first_line[:100]
 
     years_match = re.search(r"(\d+)\+?\s*(?:years|yrs)", jd_text, flags=re.IGNORECASE)

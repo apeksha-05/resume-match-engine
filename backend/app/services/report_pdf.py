@@ -38,13 +38,22 @@ TITLE_STYLE = ParagraphStyle(
     "ReportTitle", parent=_base["Title"], fontSize=18, leading=22, alignment=0, spaceAfter=4
 )
 SUBTITLE_STYLE = ParagraphStyle(
-    "ReportSubtitle", parent=_base["Normal"], fontSize=10, textColor=colors.HexColor("#555555"), spaceAfter=8
+    "ReportSubtitle",
+    parent=_base["Normal"],
+    fontSize=10,
+    textColor=colors.HexColor("#555555"),
+    spaceAfter=8,
 )
 SCORE_STYLE = ParagraphStyle(
     "ReportScore", parent=_base["Normal"], fontSize=15, leading=19, spaceBefore=6, spaceAfter=2
 )
 HEADING_STYLE = ParagraphStyle(
-    "ReportHeading", parent=_base["Heading2"], fontSize=12, spaceBefore=12, spaceAfter=6, keepWithNext=1
+    "ReportHeading",
+    parent=_base["Heading2"],
+    fontSize=12,
+    spaceBefore=12,
+    spaceAfter=6,
+    keepWithNext=1,
 )
 BODY_STYLE = ParagraphStyle("ReportBody", parent=_base["Normal"], fontSize=9.5, leading=13)
 SMALL_STYLE = ParagraphStyle(
@@ -178,11 +187,15 @@ def build_report_pdf(detail: AnalysisDetailOut) -> bytes:
     story.append(_category_table(detail))
 
     story.append(Paragraph("Skills", HEADING_STYLE))
-    story.append(_skills_paragraph("Matched required", [s.name for s in detail.matched_required], "None"))
+    story.append(
+        _skills_paragraph("Matched required", [s.name for s in detail.matched_required], "None")
+    )
     story.append(Spacer(1, 3))
     story.append(_skills_paragraph("Missing required", detail.missing_required, "None missing"))
     story.append(Spacer(1, 3))
-    story.append(_skills_paragraph("Matched preferred", [s.name for s in detail.matched_preferred], "None"))
+    story.append(
+        _skills_paragraph("Matched preferred", [s.name for s in detail.matched_preferred], "None")
+    )
     story.append(Spacer(1, 3))
     story.append(_skills_paragraph("Missing preferred", detail.missing_preferred, "None missing"))
 
@@ -199,14 +212,20 @@ def build_report_pdf(detail: AnalysisDetailOut) -> bytes:
             story.append(Spacer(1, 4))
     else:
         story.append(
-            Paragraph("Not enough text on the resume or job description to compare passages.", BODY_STYLE)
+            Paragraph(
+                "Not enough text on the resume or job description to compare passages.", BODY_STYLE
+            )
         )
 
     story.append(Paragraph("Resume improvement suggestions", HEADING_STYLE))
     if detail.suggestions:
         for suggestion in detail.suggestions:
-            story.append(Paragraph(f"<b>Original:</b> {_safe(suggestion.original, 400)}", BODY_STYLE))
-            story.append(Paragraph(f"<b>Suggested:</b> {_safe(suggestion.suggested, 400)}", BODY_STYLE))
+            story.append(
+                Paragraph(f"<b>Original:</b> {_safe(suggestion.original, 400)}", BODY_STYLE)
+            )
+            story.append(
+                Paragraph(f"<b>Suggested:</b> {_safe(suggestion.suggested, 400)}", BODY_STYLE)
+            )
             story.append(Paragraph(f"Why: {_safe(suggestion.why_changed, 400)}", SMALL_STYLE))
             story.append(Spacer(1, 6))
         story.append(

@@ -71,7 +71,9 @@ def test_missing_user_counts_as_success(monkeypatch: pytest.MonkeyPatch):
 def test_refusal_raises_without_leaking_the_key(monkeypatch: pytest.MonkeyPatch):
     configure(monkeypatch)
     monkeypatch.setattr(
-        supabase_admin.httpx, "delete", lambda url, headers, timeout: fake_response(401, "unauthorized")
+        supabase_admin.httpx,
+        "delete",
+        lambda url, headers, timeout: fake_response(401, "unauthorized"),
     )
 
     with pytest.raises(AuthDeletionError) as error:
@@ -103,7 +105,8 @@ def test_delete_raises_when_not_configured(monkeypatch: pytest.MonkeyPatch):
 
     with pytest.raises(AuthDeletionError):
         delete_auth_user(USER_ID)
-        
+
+
 def test_user_exists_returns_true_for_a_200(monkeypatch: pytest.MonkeyPatch):
     configure(monkeypatch)
     captured: dict = {}

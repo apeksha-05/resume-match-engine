@@ -7,6 +7,7 @@ from app.core.database import SessionLocal
 from app.core.skills_data import SKILLS
 from app.models.skill import Skill, SkillAlias
 
+
 def run() -> None:
     db = SessionLocal()
     try:

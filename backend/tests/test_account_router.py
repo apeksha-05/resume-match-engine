@@ -35,7 +35,9 @@ def test_summary_returns_counts():
 
 def test_delete_data_keeps_the_login(monkeypatch: pytest.MonkeyPatch):
     calls: list[str] = []
-    monkeypatch.setattr(account_router, "delete_user_data", lambda db, user_id: calls.append("data"))
+    monkeypatch.setattr(
+        account_router, "delete_user_data", lambda db, user_id: calls.append("data")
+    )
     monkeypatch.setattr(account_router, "delete_auth_user", lambda user_id: calls.append("login"))
     client, _ = make_client()
 
@@ -48,7 +50,9 @@ def test_delete_data_keeps_the_login(monkeypatch: pytest.MonkeyPatch):
 def test_delete_account_removes_data_before_login(monkeypatch: pytest.MonkeyPatch):
     calls: list[str] = []
     monkeypatch.setattr(account_router, "auth_deletion_configured", lambda: True)
-    monkeypatch.setattr(account_router, "delete_user_data", lambda db, user_id: calls.append("data"))
+    monkeypatch.setattr(
+        account_router, "delete_user_data", lambda db, user_id: calls.append("data")
+    )
     monkeypatch.setattr(account_router, "delete_auth_user", lambda user_id: calls.append("login"))
     client, _ = make_client()
 
@@ -61,7 +65,9 @@ def test_delete_account_removes_data_before_login(monkeypatch: pytest.MonkeyPatc
 def test_delete_account_deletes_nothing_when_not_configured(monkeypatch: pytest.MonkeyPatch):
     calls: list[str] = []
     monkeypatch.setattr(account_router, "auth_deletion_configured", lambda: False)
-    monkeypatch.setattr(account_router, "delete_user_data", lambda db, user_id: calls.append("data"))
+    monkeypatch.setattr(
+        account_router, "delete_user_data", lambda db, user_id: calls.append("data")
+    )
     monkeypatch.setattr(account_router, "delete_auth_user", lambda user_id: calls.append("login"))
     client, _ = make_client()
 
@@ -78,7 +84,9 @@ def test_delete_account_reports_a_login_failure_after_data_is_gone(monkeypatch: 
         raise AuthDeletionError("Supabase refused the request (status 401)")
 
     monkeypatch.setattr(account_router, "auth_deletion_configured", lambda: True)
-    monkeypatch.setattr(account_router, "delete_user_data", lambda db, user_id: calls.append("data"))
+    monkeypatch.setattr(
+        account_router, "delete_user_data", lambda db, user_id: calls.append("data")
+    )
     monkeypatch.setattr(account_router, "delete_auth_user", failing_login)
     client, _ = make_client()
 

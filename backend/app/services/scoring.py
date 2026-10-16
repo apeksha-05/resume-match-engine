@@ -109,7 +109,9 @@ def _resume_chunks(resume: ParsedResume) -> list[str]:
     return chunks
 
 
-def _score_semantic(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[float | None, str, list[EvidenceItem]]:
+def _score_semantic(
+    resume: ParsedResume, jd: ParsedJobDescription
+) -> tuple[float | None, str, list[EvidenceItem]]:
     requirements = list(jd.required_skills) + list(jd.preferred_skills) + list(jd.responsibilities)
     resume_chunks = _resume_chunks(resume)
 
@@ -134,7 +136,11 @@ def _score_semantic(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[flo
         rescaled = _rescale_similarity(best_similarity)
         rescaled_scores.append(rescaled)
         evidence_items.append(
-            EvidenceItem(requirement=requirement_text, snippet=best_chunk, similarity=round(best_similarity, 3))
+            EvidenceItem(
+                requirement=requirement_text,
+                snippet=best_chunk,
+                similarity=round(best_similarity, 3),
+            )
         )
 
     score = sum(rescaled_scores) / len(rescaled_scores)
@@ -157,7 +163,9 @@ def _score_experience(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[f
         years_note = "The job description does not specify a required number of years."
     else:
         years_component = _clamp01(relevant_years / required_years)
-        years_note = f"Estimated {relevant_years:.1f} relevant years against {required_years} required."
+        years_note = (
+            f"Estimated {relevant_years:.1f} relevant years against {required_years} required."
+        )
 
     resume_titles = resume.job_titles_held or [job.job_title for job in resume.work_experience]
     if resume_titles and jd.title:
@@ -183,7 +191,10 @@ def _score_education(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[fl
     if not jd.education_requirement:
         return None, "The job description does not specify an education requirement."
     if not resume.education:
-        return 0.0, f"The job requires '{jd.education_requirement}', but no education was found on the resume."
+        return (
+            0.0,
+            f"The job requires '{jd.education_requirement}', but no education was found on the resume.",
+        )
     # Simple presence check; a more sophisticated degree-level comparison is a
     # reasonable future improvement once real AI extraction is in place.
     requirement_lower = jd.education_requirement.lower()
@@ -208,8 +219,20 @@ def compute_analysis(
     raw_categories = [
         ("skills", "Skills coverage", skills_score, weights.skills, skills_explanation),
         ("semantic", "Semantic similarity", semantic_score, weights.semantic, semantic_explanation),
-        ("experience", "Experience relevance", experience_score, weights.experience, experience_explanation),
-        ("education", "Education alignment", education_score, weights.education, education_explanation),
+        (
+            "experience",
+            "Experience relevance",
+            experience_score,
+            weights.experience,
+            experience_explanation,
+        ),
+        (
+            "education",
+            "Education alignment",
+            education_score,
+            weights.education,
+            education_explanation,
+        ),
     ]
 
     applicable = [(k, l, s, w, e) for (k, l, s, w, e) in raw_categories if s is not None]
@@ -229,14 +252,25 @@ def compute_analysis(
         overall += score * effective_weight
         categories.append(
             CategoryScore(
-                key=key, label=label, score=round(score, 3), weight=round(effective_weight, 3),
-                applicable=True, explanation=explanation,
+                key=key,
+                label=label,
+                score=round(score, 3),
+                weight=round(effective_weight, 3),
+                applicable=True,
+                explanation=explanation,
             )
         )
 
     for key, label, original_weight, explanation in not_applicable:
         categories.append(
-            CategoryScore(key=key, label=label, score=0.0, weight=0.0, applicable=False, explanation=explanation)
+            CategoryScore(
+                key=key,
+                label=label,
+                score=0.0,
+                weight=0.0,
+                applicable=False,
+                explanation=explanation,
+            )
         )
         calculation_notes.append(
             f"'{label}' could not be evaluated, so its weight was redistributed across the other categories."

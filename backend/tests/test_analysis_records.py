@@ -24,12 +24,20 @@ def make_full_result() -> AnalysisFullResult:
         weights=Weights(skills=0.45, semantic=0.25, experience=0.2, education=0.1),
         categories=[
             CategoryScore(
-                key="skills", label="Skills coverage", score=0.667, weight=0.5,
-                applicable=True, explanation="4 of 6 required skills matched.",
+                key="skills",
+                label="Skills coverage",
+                score=0.667,
+                weight=0.5,
+                applicable=True,
+                explanation="4 of 6 required skills matched.",
             ),
             CategoryScore(
-                key="education", label="Education alignment", score=0.0, weight=0.0,
-                applicable=False, explanation="No education requirement stated.",
+                key="education",
+                label="Education alignment",
+                score=0.0,
+                weight=0.0,
+                applicable=False,
+                explanation="No education requirement stated.",
             ),
         ],
         matched_required=[SkillMatch(name="Python", evidence="Built APIs in Python")],
@@ -80,7 +88,10 @@ def test_history_item_has_summary_fields():
 
 
 def test_short_title_uses_first_sentence():
-    assert short_title("Backend Engineer at Acme Cloud. We need Python.") == "Backend Engineer at Acme Cloud"
+    assert (
+        short_title("Backend Engineer at Acme Cloud. We need Python.")
+        == "Backend Engineer at Acme Cloud"
+    )
 
 
 def test_short_title_truncates_long_text():

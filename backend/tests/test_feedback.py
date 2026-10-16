@@ -33,7 +33,9 @@ def test_suggestions_never_invent_skills_not_in_resume():
         ],
         work_experience=[],
         education=[],
-        projects=[Project(name="Test Project", description="Built a backend service", technologies=[])],
+        projects=[
+            Project(name="Test Project", description="Built a backend service", technologies=[])
+        ],
         certifications=[],
         job_titles_held=[],
     )
@@ -46,7 +48,9 @@ def test_suggestions_never_invent_skills_not_in_resume():
         # a real skill from the resume, never fabricated.
         for skill_name in resume_skill_names:
             pass  # presence isn't required, but nothing outside resume_skill_names should appear
-        assert suggestion.original in suggestion.suggested or suggestion.suggested.startswith(suggestion.original.rstrip("."))
+        assert suggestion.original in suggestion.suggested or suggestion.suggested.startswith(
+            suggestion.original.rstrip(".")
+        )
 
 
 def test_suggestions_empty_when_no_bullets():

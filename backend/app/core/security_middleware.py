@@ -64,7 +64,9 @@ def install_security_middleware(
             if retry_after:
                 return JSONResponse(
                     status_code=429,
-                    content={"detail": f"Too many requests. Please wait {retry_after} seconds and try again."},
+                    content={
+                        "detail": f"Too many requests. Please wait {retry_after} seconds and try again."
+                    },
                     headers={"Retry-After": str(retry_after)},
                 )
         return None

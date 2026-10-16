@@ -102,9 +102,7 @@ def test_ai_failures_become_clean_errors_without_details(monkeypatch: pytest.Mon
 
 
 def test_skill_names_from_the_ai_are_normalized(monkeypatch: pytest.MonkeyPatch):
-    models = FakeModels(
-        text=json.dumps({"skills": [{"name": "js", "evidence": "I use js daily"}]})
-    )
+    models = FakeModels(text=json.dumps({"skills": [{"name": "js", "evidence": "I use js daily"}]}))
     use_fake_client(monkeypatch, models, mock_mode=False)
 
     parsed = resume_extraction.extract_structured_resume("I use js daily")

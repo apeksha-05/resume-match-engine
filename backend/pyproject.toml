@@ -1,0 +1,22 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+# E/F: basic errors, I: import order, B: common bug patterns, UP: modern syntax
+select = ["E", "F", "I", "B", "UP"]
+# Long lines are handled by the formatter; strings it cannot wrap are fine.
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["app"]
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true

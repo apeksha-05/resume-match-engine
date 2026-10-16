@@ -126,9 +126,7 @@ def test_unknown_skills_match_regardless_of_case():
 
 
 def test_a_skill_listed_as_required_and_preferred_counts_once_as_required():
-    _, _, details = _score_skills(
-        make_resume("Python"), make_jd(["Python"], ["python", "Redis"])
-    )
+    _, _, details = _score_skills(make_resume("Python"), make_jd(["Python"], ["python", "Redis"]))
 
     assert [m.name for m in details["matched_required"]] == ["Python"]
     assert details["matched_preferred"] == []
