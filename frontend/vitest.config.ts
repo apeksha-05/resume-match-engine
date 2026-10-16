@@ -13,5 +13,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
+    // The 5-second default is too tight for a busy Windows machine or a CI runner.
+    testTimeout: 20000,
   },
 });

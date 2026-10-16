@@ -60,10 +60,7 @@ beforeEach(() => {
   mocks.useAuth.mockReturnValue(signedOut());
   mocks.listResumes.mockResolvedValue([]);
   mocks.listJobs.mockResolvedValue({
-    items: [
-      makeJob({}),
-      makeJob({ id: "job-2", title: "Junior Python Developer", min_years: 0 }),
-    ],
+    items: [makeJob({}), makeJob({ id: "job-2", title: "Junior Python Developer", min_years: 0 })],
     total: 2,
   });
 });
@@ -81,10 +78,7 @@ describe("JobsPage", () => {
     renderJobsPage();
     await screen.findByText("Backend Engineer");
 
-    await user.type(
-      screen.getByPlaceholderText("Search title, company or location"),
-      "python",
-    );
+    await user.type(screen.getByPlaceholderText("Search title, company or location"), "python");
 
     await waitFor(() =>
       expect(mocks.listJobs).toHaveBeenLastCalledWith(
@@ -97,9 +91,7 @@ describe("JobsPage", () => {
     mocks.listJobs.mockResolvedValue({ items: [], total: 0 });
     renderJobsPage();
 
-    expect(
-      await screen.findByText(/no jobs match these filters/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/no jobs match these filters/i)).toBeInTheDocument();
   });
 
   it("shows an error message when loading fails", async () => {
@@ -112,9 +104,7 @@ describe("JobsPage", () => {
   it("asks signed-out visitors to log in to rank jobs", async () => {
     renderJobsPage();
 
-    expect(
-      await screen.findByText(/log in to rank these jobs/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/log in to rank these jobs/i)).toBeInTheDocument();
     expect(mocks.listResumes).not.toHaveBeenCalled();
   });
 
@@ -126,8 +116,6 @@ describe("JobsPage", () => {
     });
     renderJobsPage();
 
-    expect(
-      await screen.findByText(/no saved resumes yet/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/no saved resumes yet/i)).toBeInTheDocument();
   });
 });

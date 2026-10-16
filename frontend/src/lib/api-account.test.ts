@@ -27,10 +27,10 @@ afterEach(() => {
 describe("account API calls", () => {
   it("reads the account summary with the bearer token", async () => {
     fetchMock.mockResolvedValue(
-      new Response(
-        JSON.stringify({ resumes: 1, analyses: 2, job_descriptions: 3 }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+      new Response(JSON.stringify({ resumes: 1, analyses: 2, job_descriptions: 3 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
     );
 
     const summary = await getAccountSummary();

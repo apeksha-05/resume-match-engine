@@ -41,7 +41,13 @@ export function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
@@ -69,7 +75,10 @@ export function SignupPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account? <Link to="/login" className="underline">Log in</Link>
+            Already have an account?{" "}
+            <Link to="/login" className="underline">
+              Log in
+            </Link>
           </p>
         </CardContent>
       </Card>

@@ -33,9 +33,8 @@ export function ModeBanner() {
       className="border-b bg-muted/60 px-4 py-2 text-center text-xs text-muted-foreground"
     >
       <Info className="mr-1.5 inline size-3.5 align-text-bottom" />
-      Demo mode: skills are found by keyword matching against a built-in skill
-      list, and suggestions follow fixed templates. No external AI service is
-      used.
+      Demo mode: skills are found by keyword matching against a built-in skill list, and suggestions
+      follow fixed templates. No external AI service is used.
     </div>
   );
 }

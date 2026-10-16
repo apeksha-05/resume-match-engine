@@ -32,17 +32,13 @@ const apiAnalysis: ApiAnalysisDetail = {
   missing_required: ["Docker"],
   matched_preferred: [],
   missing_preferred: ["AWS"],
-  evidence: [
-    { requirement: "Python", snippet: "Built APIs in Python", similarity: 0.6 },
-  ],
+  evidence: [{ requirement: "Python", snippet: "Built APIs in Python", similarity: 0.6 }],
   calculation_notes: ["note"],
   suggestions: [
     { original: "o1", suggested: "s1", why_changed: "w1" },
     { original: "o2", suggested: "s2", why_changed: "w2" },
   ],
-  roadmap: [
-    { skill: "Docker", reason: "r", steps: ["step"], estimated_weeks: 2 },
-  ],
+  roadmap: [{ skill: "Docker", reason: "r", steps: ["step"], estimated_weeks: 2 }],
 };
 
 describe("toAnalysisResult", () => {

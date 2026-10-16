@@ -68,7 +68,8 @@ export function AppLayout() {
       </main>
 
       <footer className="border-t py-4 text-center text-xs text-muted-foreground">
-        Scores are estimated fit indicators, not hiring probabilities. Sample jobs and data are fictional demo data.
+        Scores are estimated fit indicators, not hiring probabilities. Sample jobs and data are
+        fictional demo data.
       </footer>
     </div>
   );

@@ -40,9 +40,7 @@ describe("api request helper", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url.endsWith("/analyses")).toBe(true);
-    expect(new Headers(init.headers).get("Authorization")).toBe(
-      "Bearer test-token",
-    );
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer test-token");
   });
 
   it("turns a FastAPI error string into an ApiError", async () => {
@@ -57,17 +55,12 @@ describe("api request helper", () => {
 
   it("joins FastAPI validation messages", async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse(
-        { detail: [{ msg: "String should have at least 50 characters" }] },
-        422,
-      ),
+      jsonResponse({ detail: [{ msg: "String should have at least 50 characters" }] }, 422),
     );
 
     const error = await listAnalyses().catch((e: unknown) => e);
 
-    expect((error as ApiError).message).toBe(
-      "String should have at least 50 characters",
-    );
+    expect((error as ApiError).message).toBe("String should have at least 50 characters");
   });
 
   it("reports an unreachable server with status 0", async () => {
@@ -93,8 +86,6 @@ describe("getErrorMessage", () => {
   });
 
   it("returns the fallback for anything else", () => {
-    expect(getErrorMessage(new Error("internal detail"), "fallback")).toBe(
-      "fallback",
-    );
+    expect(getErrorMessage(new Error("internal detail"), "fallback")).toBe("fallback");
   });
 });

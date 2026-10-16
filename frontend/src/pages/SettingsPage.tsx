@@ -4,13 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,44 +38,38 @@ function PrivacyNotice() {
       <CardHeader>
         <CardTitle>How your data is handled</CardTitle>
         <CardDescription>
-          This is a portfolio project, not a commercial service. Here is what it
-          does with your data.
+          This is a portfolio project, not a commercial service. Here is what it does with your
+          data.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="list-inside list-disc space-y-2 text-sm">
           <li>
-            <span className="font-medium">What is saved:</span> your resume's
-            file name, the skills and short text excerpts extracted from it, the
-            details extracted from job descriptions you paste, and your analysis
-            results (scores, suggestions and roadmap), all linked to your
-            account.
+            <span className="font-medium">What is saved:</span> your resume's file name, the skills
+            and short text excerpts extracted from it, the details extracted from job descriptions
+            you paste, and your analysis results (scores, suggestions and roadmap), all linked to
+            your account.
           </li>
           <li>
-            <span className="font-medium">What is not saved:</span> your PDF file
-            is read in memory and is not stored, and the full text of your
-            resume and job descriptions is not kept. The saved excerpts can
-            still contain personal details that appear in them.
+            <span className="font-medium">What is not saved:</span> your PDF file is read in memory
+            and is not stored, and the full text of your resume and job descriptions is not kept.
+            The saved excerpts can still contain personal details that appear in them.
           </li>
           <li>
-            <span className="font-medium">Who can see it:</span> only you.
-            Everything is tied to your account, and the server checks this on
-            every request. Sign-in is handled by Supabase Auth, so this app
-            never sees or stores your password.
+            <span className="font-medium">Who can see it:</span> only you. Everything is tied to
+            your account, and the server checks this on every request. Sign-in is handled by
+            Supabase Auth, so this app never sees or stores your password.
           </li>
           <li>
-            <span className="font-medium">AI processing:</span> right now,
-            skills are found with a built-in keyword matcher and semantic
-            similarity is computed by a language model that runs on this app's
-            own server, so your text is not sent to an external AI service. If
-            external AI extraction is turned on in future, your resume text
-            would be sent to that provider, and this notice will be updated
-            before that happens.
+            <span className="font-medium">AI processing:</span> right now, skills are found with a
+            built-in keyword matcher and semantic similarity is computed by a language model that
+            runs on this app's own server, so your text is not sent to an external AI service. If
+            external AI extraction is turned on in future, your resume text would be sent to that
+            provider, and this notice will be updated before that happens.
           </li>
           <li>
-            <span className="font-medium">Your control:</span> you can delete a
-            single resume, all of your saved data, or your whole account below,
-            at any time.
+            <span className="font-medium">Your control:</span> you can delete a single resume, all
+            of your saved data, or your whole account below, at any time.
           </li>
         </ul>
       </CardContent>
@@ -174,9 +162,7 @@ export function SettingsPage() {
     try {
       await deleteMyAccount();
     } catch (error) {
-      setActionError(
-        getErrorMessage(error, "Could not delete your account. Please try again."),
-      );
+      setActionError(getErrorMessage(error, "Could not delete your account. Please try again."));
       setBusy(null);
       return;
     }
@@ -230,45 +216,37 @@ export function SettingsPage() {
             </Alert>
           )}
 
-          {current !== null &&
-            current.error === null &&
-            current.resumes.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                You have no saved resumes.
-              </p>
-            )}
+          {current !== null && current.error === null && current.resumes.length === 0 && (
+            <p className="text-sm text-muted-foreground">You have no saved resumes.</p>
+          )}
 
-          {current !== null &&
-            current.error === null &&
-            current.resumes.length > 0 && (
-              <ul className="space-y-2">
-                {current.resumes.map((resume) => (
-                  <li
-                    key={resume.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border p-3"
+          {current !== null && current.error === null && current.resumes.length > 0 && (
+            <ul className="space-y-2">
+              {current.resumes.map((resume) => (
+                <li
+                  key={resume.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{resume.filename}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {resume.skill_count} skills ·{" "}
+                      {new Date(resume.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Delete ${resume.filename}`}
+                    disabled={busy !== null}
+                    onClick={() => handleDeleteResume(resume)}
                   >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {resume.filename}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {resume.skill_count} skills ·{" "}
-                        {new Date(resume.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Delete ${resume.filename}`}
-                      disabled={busy !== null}
-                      onClick={() => handleDeleteResume(resume)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    <Trash2 className="size-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <p className="mt-3 text-xs text-muted-foreground">
             Deleting a resume also deletes every analysis based on it.
@@ -279,21 +257,14 @@ export function SettingsPage() {
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle>Delete your data</CardTitle>
-          <CardDescription>
-            These actions are permanent and cannot be undone.
-          </CardDescription>
+          <CardDescription>These actions are permanent and cannot be undone.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-md text-sm text-muted-foreground">
-              Delete all saved resumes, analyses and job descriptions. Your login
-              stays active.
+              Delete all saved resumes, analyses and job descriptions. Your login stays active.
             </p>
-            <Button
-              variant="outline"
-              disabled={busy !== null}
-              onClick={handleDeleteData}
-            >
+            <Button variant="outline" disabled={busy !== null} onClick={handleDeleteData}>
               {busy === "data" ? "Deleting..." : "Delete all my data"}
             </Button>
           </div>
@@ -303,9 +274,7 @@ export function SettingsPage() {
               Delete your account: removes all your saved data and your login.
             </p>
             <div className="max-w-xs space-y-1.5">
-              <Label htmlFor="confirm-delete">
-                Type {CONFIRM_WORD} to confirm
-              </Label>
+              <Label htmlFor="confirm-delete">Type {CONFIRM_WORD} to confirm</Label>
               <Input
                 id="confirm-delete"
                 autoComplete="off"

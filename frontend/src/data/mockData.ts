@@ -1,10 +1,4 @@
-import type {
-  AnalysisResult,
-  HistoryItem,
-  Job,
-  JobRecommendation,
-  Weights,
-} from "@/types";
+import type { AnalysisResult, HistoryItem, Job, JobRecommendation, Weights } from "@/types";
 
 export const defaultWeights: Weights = {
   skills: 0.45,
@@ -62,13 +56,11 @@ export const mockAnalysis: AnalysisResult = {
     },
     {
       name: "FastAPI",
-      evidence:
-        "Developed a FastAPI service that handles resume uploads for a college project.",
+      evidence: "Developed a FastAPI service that handles resume uploads for a college project.",
     },
     {
       name: "SQL",
-      evidence:
-        "Designed PostgreSQL tables and wrote joins for reporting queries.",
+      evidence: "Designed PostgreSQL tables and wrote joins for reporting queries.",
     },
     {
       name: "REST APIs",
@@ -79,13 +71,11 @@ export const mockAnalysis: AnalysisResult = {
   matchedPreferred: [
     {
       name: "PostgreSQL",
-      evidence:
-        "Designed PostgreSQL tables and wrote joins for reporting queries.",
+      evidence: "Designed PostgreSQL tables and wrote joins for reporting queries.",
     },
     {
       name: "CI/CD",
-      evidence:
-        "Set up a GitHub Actions workflow that runs unit tests on every push.",
+      evidence: "Set up a GitHub Actions workflow that runs unit tests on every push.",
     },
   ],
   missingPreferred: ["Redis"],
@@ -102,14 +92,12 @@ export const mockAnalysis: AnalysisResult = {
     },
     {
       requirement: "Work with relational databases",
-      snippet:
-        "Designed PostgreSQL tables and wrote joins for reporting queries.",
+      snippet: "Designed PostgreSQL tables and wrote joins for reporting queries.",
       similarity: 0.58,
     },
     {
       requirement: "Collaborate in an agile team",
-      snippet:
-        "Collaborated with a team of four using Git branches and pull requests.",
+      snippet: "Collaborated with a team of four using Git branches and pull requests.",
       similarity: 0.62,
     },
   ],
@@ -125,16 +113,14 @@ export const mockAnalysis: AnalysisResult = {
     {
       id: "s2",
       original: "Made database tables for the project.",
-      suggested:
-        "Designed PostgreSQL tables and wrote SQL joins for reporting queries.",
+      suggested: "Designed PostgreSQL tables and wrote SQL joins for reporting queries.",
       whyChanged:
         "Uses the exact technology and task from your project description, which lines up with the job's SQL requirement.",
     },
     {
       id: "s3",
       original: "Used GitHub for testing.",
-      suggested:
-        "Configured a GitHub Actions workflow that runs unit tests on every push.",
+      suggested: "Configured a GitHub Actions workflow that runs unit tests on every push.",
       whyChanged:
         "Says precisely what you did. Only keep this wording if it is accurate for your project.",
     },
@@ -204,8 +190,7 @@ export const mockJobs: Job[] = [
     location: "Pune",
     workMode: "hybrid",
     minYears: 0,
-    description:
-      "Help build data pipelines and clean datasets for the analytics team.",
+    description: "Help build data pipelines and clean datasets for the analytics team.",
     requiredSkills: ["Python", "SQL", "Pandas"],
     preferredSkills: ["Airflow", "PostgreSQL"],
     isDemo: true,

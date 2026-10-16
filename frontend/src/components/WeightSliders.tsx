@@ -38,9 +38,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         <div key={key}>
           <div className="mb-1 flex justify-between text-sm">
             <span>{labels[key]}</span>
-            <span className="font-medium">
-              {Math.round(weights[key] * 100)}%
-            </span>
+            <span className="font-medium">{Math.round(weights[key] * 100)}%</span>
           </div>
           <Slider
             value={[Math.round(weights[key] * 100)]}

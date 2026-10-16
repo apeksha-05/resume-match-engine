@@ -15,9 +15,7 @@ export function CategoryScoreBar({ category }: { category: CategoryScore }) {
         </span>
       </div>
       {applicable && <Progress value={category.score * 100} />}
-      <p className="mt-1 text-xs text-muted-foreground">
-        {category.explanation}
-      </p>
+      <p className="mt-1 text-xs text-muted-foreground">{category.explanation}</p>
     </div>
   );
 }

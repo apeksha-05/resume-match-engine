@@ -1,12 +1,7 @@
 import { Gauge, Lightbulb, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const features = [
   {
@@ -34,8 +29,8 @@ export function LandingPage() {
           Understand how well your resume fits a job
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          An explainable resume and job description matching engine. No
-          black-box score, and no promises about hiring outcomes.
+          An explainable resume and job description matching engine. No black-box score, and no
+          promises about hiring outcomes.
         </p>
         <div className="mt-6 flex justify-center gap-3">
           <Button asChild size="lg">

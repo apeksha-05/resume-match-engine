@@ -38,9 +38,7 @@ describe("downloadAnalysisReport", () => {
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url.endsWith("/analyses/abc-123/report.pdf")).toBe(true);
-    expect(new Headers(init.headers).get("Authorization")).toBe(
-      "Bearer test-token",
-    );
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer test-token");
     expect(blob.size).toBe(fakePdf.length);
     expect(blob.type).toBe("application/pdf");
   });
@@ -53,9 +51,7 @@ describe("downloadAnalysisReport", () => {
       }),
     );
 
-    const error = await downloadAnalysisReport("missing").catch(
-      (e: unknown) => e,
-    );
+    const error = await downloadAnalysisReport("missing").catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).status).toBe(404);

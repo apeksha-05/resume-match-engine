@@ -1,9 +1,4 @@
-import type {
-  ApiAnalysisDetail,
-  ApiHistoryItem,
-  ApiJob,
-  ApiRecommendation,
-} from "@/lib/api-types";
+import type { ApiAnalysisDetail, ApiHistoryItem, ApiJob, ApiRecommendation } from "@/lib/api-types";
 import type { AnalysisResult, HistoryItem, Job, JobListItem } from "@/types";
 
 export function toAnalysisResult(api: ApiAnalysisDetail): AnalysisResult {

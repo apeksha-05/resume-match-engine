@@ -5,13 +5,7 @@ import { SkillBadgeList } from "@/components/SkillBadgeList";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,12 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getErrorMessage,
-  getRecommendations,
-  listJobs,
-  listResumes,
-} from "@/lib/api";
+import { getErrorMessage, getRecommendations, listJobs, listResumes } from "@/lib/api";
 import type { ApiResumeSummary } from "@/lib/api-types";
 import { useAuth } from "@/lib/auth-context";
 import { toJobListItem, toRecommendationItem } from "@/lib/mappers";
@@ -66,9 +55,7 @@ function JobCard({ item }: { item: JobListItem }) {
               {job.company} · {job.location} · {workModeLabels[job.workMode]}
             </CardDescription>
           </div>
-          {score !== undefined && (
-            <Badge className="shrink-0">{score}% fit</Badge>
-          )}
+          {score !== undefined && <Badge className="shrink-0">{score}% fit</Badge>}
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -100,8 +87,7 @@ function JobCard({ item }: { item: JobListItem }) {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Experience:{" "}
-          {job.minYears === 0 ? "entry level" : `${job.minYears}+ years`}
+          Experience: {job.minYears === 0 ? "entry level" : `${job.minYears}+ years`}
         </p>
         {job.isDemo && <Badge variant="outline">DEMO DATA</Badge>}
       </CardContent>
@@ -123,10 +109,7 @@ export function JobsPage() {
 
   // Wait for the user to stop typing before calling the API.
   useEffect(() => {
-    const timer = setTimeout(
-      () => setDebouncedSearch(search.trim()),
-      SEARCH_DEBOUNCE_MS,
-    );
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -166,12 +149,7 @@ export function JobsPage() {
       ? selectedResumeId
       : null;
 
-  const requestKey = JSON.stringify([
-    debouncedSearch,
-    workMode,
-    maxYears,
-    activeResumeId,
-  ]);
+  const requestKey = JSON.stringify([debouncedSearch, workMode, maxYears, activeResumeId]);
 
   // Load jobs: ranked against a resume if one is selected, otherwise plain.
   useEffect(() => {
@@ -212,8 +190,7 @@ export function JobsPage() {
     };
   }, [activeResumeId, debouncedSearch, maxYears, requestKey, workMode]);
 
-  const currentJobs =
-    loadedJobs !== null && loadedJobs.key === requestKey ? loadedJobs : null;
+  const currentJobs = loadedJobs !== null && loadedJobs.key === requestKey ? loadedJobs : null;
   const isRanked = activeResumeId !== null;
 
   return (
@@ -229,10 +206,7 @@ export function JobsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Select
-          value={workMode}
-          onValueChange={(value) => setWorkMode(value as WorkMode | "all")}
-        >
+        <Select value={workMode} onValueChange={(value) => setWorkMode(value as WorkMode | "all")}>
           <SelectTrigger>
             <SelectValue placeholder="Work mode" />
           </SelectTrigger>
@@ -245,9 +219,7 @@ export function JobsPage() {
         </Select>
         <Select
           value={String(maxYears)}
-          onValueChange={(value) =>
-            setMaxYears(value === "all" ? "all" : Number(value))
-          }
+          onValueChange={(value) => setMaxYears(value === "all" ? "all" : Number(value))}
         >
           <SelectTrigger>
             <SelectValue placeholder="Experience required" />
@@ -265,8 +237,8 @@ export function JobsPage() {
         <CardHeader>
           <CardTitle className="text-base">Rank jobs for my resume</CardTitle>
           <CardDescription>
-            Uses the same explainable scoring as a full analysis. Scores are
-            estimated fit indicators, not hiring probabilities.
+            Uses the same explainable scoring as a full analysis. Scores are estimated fit
+            indicators, not hiring probabilities.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -281,55 +253,41 @@ export function JobsPage() {
             </div>
           )}
 
-          {user && resumes === null && (
-            <Skeleton className="h-9 w-full max-w-md" />
-          )}
+          {user && resumes === null && <Skeleton className="h-9 w-full max-w-md" />}
 
           {user && resumes !== null && resumes.error !== null && (
             <p className="text-sm text-muted-foreground">{resumes.error}</p>
           )}
 
-          {user &&
-            resumes !== null &&
-            resumes.error === null &&
-            resumes.items.length === 0 && (
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="text-sm text-muted-foreground">
-                  You have no saved resumes yet. Run an analysis first, then
-                  come back to rank jobs.
-                </p>
-                <Button asChild size="sm">
-                  <Link to="/analyze">New analysis</Link>
-                </Button>
-              </div>
-            )}
+          {user && resumes !== null && resumes.error === null && resumes.items.length === 0 && (
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground">
+                You have no saved resumes yet. Run an analysis first, then come back to rank jobs.
+              </p>
+              <Button asChild size="sm">
+                <Link to="/analyze">New analysis</Link>
+              </Button>
+            </div>
+          )}
 
-          {user &&
-            resumes !== null &&
-            resumes.error === null &&
-            resumes.items.length > 0 && (
-              <div className="max-w-md">
-                <Select
-                  value={selectedResumeId}
-                  onValueChange={setSelectedResumeId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a saved resume" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_RESUME}>
-                      Don't rank (show all jobs)
+          {user && resumes !== null && resumes.error === null && resumes.items.length > 0 && (
+            <div className="max-w-md">
+              <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a saved resume" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_RESUME}>Don't rank (show all jobs)</SelectItem>
+                  {resumes.items.map((resume) => (
+                    <SelectItem key={resume.id} value={resume.id}>
+                      {resume.filename} · {resume.skill_count} skills ·{" "}
+                      {new Date(resume.created_at).toLocaleDateString()}
                     </SelectItem>
-                    {resumes.items.map((resume) => (
-                      <SelectItem key={resume.id} value={resume.id}>
-                        {resume.filename} · {resume.skill_count} skills ·{" "}
-                        {new Date(resume.created_at).toLocaleDateString()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -348,32 +306,27 @@ export function JobsPage() {
         </Alert>
       )}
 
-      {currentJobs !== null &&
-        currentJobs.error === null &&
-        currentJobs.items.length === 0 && (
-          <Card>
-            <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              No jobs match these filters. Try widening your search.
-            </CardContent>
-          </Card>
-        )}
+      {currentJobs !== null && currentJobs.error === null && currentJobs.items.length === 0 && (
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            No jobs match these filters. Try widening your search.
+          </CardContent>
+        </Card>
+      )}
 
-      {currentJobs !== null &&
-        currentJobs.error === null &&
-        currentJobs.items.length > 0 && (
-          <div>
-            <p className="mb-3 text-sm text-muted-foreground">
-              {currentJobs.items.length}{" "}
-              {currentJobs.items.length === 1 ? "job" : "jobs"}
-              {isRanked ? ", ranked by estimated fit for your resume." : "."}
-            </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              {currentJobs.items.map((item) => (
-                <JobCard key={item.job.id} item={item} />
-              ))}
-            </div>
+      {currentJobs !== null && currentJobs.error === null && currentJobs.items.length > 0 && (
+        <div>
+          <p className="mb-3 text-sm text-muted-foreground">
+            {currentJobs.items.length} {currentJobs.items.length === 1 ? "job" : "jobs"}
+            {isRanked ? ", ranked by estimated fit for your resume." : "."}
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {currentJobs.items.map((item) => (
+              <JobCard key={item.job.id} item={item} />
+            ))}
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }

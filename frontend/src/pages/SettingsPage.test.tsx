@@ -106,9 +106,7 @@ describe("SettingsPage", () => {
     await user.type(screen.getByLabelText(/type delete to confirm/i), "DELETE");
     await user.click(screen.getByRole("button", { name: /delete my account/i }));
 
-    expect(
-      await screen.findByText(/could not delete your account/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/could not delete your account/i)).toBeInTheDocument();
     expect(mocks.signOut).not.toHaveBeenCalled();
     expect(mocks.navigate).not.toHaveBeenCalled();
   });
@@ -134,9 +132,7 @@ describe("SettingsPage", () => {
     await user.click(screen.getByRole("button", { name: /delete all my data/i }));
 
     await waitFor(() => expect(mocks.deleteAllMyData).toHaveBeenCalledTimes(1));
-    expect(
-      await screen.findByText("All your saved data was deleted."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("All your saved data was deleted.")).toBeInTheDocument();
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
 });

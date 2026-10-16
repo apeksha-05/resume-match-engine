@@ -93,9 +93,7 @@ export function HistoryPage() {
       {state.status === "ready" && state.items.length === 0 && (
         <Card>
           <CardContent className="space-y-4 py-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              You have no saved analyses yet.
-            </p>
+            <p className="text-sm text-muted-foreground">You have no saved analyses yet.</p>
             <Button asChild>
               <Link to="/analyze">Run your first analysis</Link>
             </Button>
@@ -116,14 +114,11 @@ export function HistoryPage() {
                     {item.jobTitle}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {item.company} ·{" "}
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {item.company} · {new Date(item.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-semibold">
-                    {item.overallScore}
-                  </span>
+                  <span className="text-2xl font-semibold">{item.overallScore}</span>
                   <Button
                     variant="ghost"
                     size="icon"

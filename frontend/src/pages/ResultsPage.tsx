@@ -7,19 +7,9 @@ import { ScoreDonut } from "@/components/ScoreDonut";
 import { SkillBadgeList } from "@/components/SkillBadgeList";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { mockAnalysis } from "@/data/mockData";
 import { downloadAnalysisReport, getAnalysis, getErrorMessage } from "@/lib/api";
@@ -183,16 +173,13 @@ function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
             <TabsContent value="evidence" className="space-y-3 pt-4">
               {analysis.evidence.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Not enough text on the resume or job description to compare
-                  passages.
+                  Not enough text on the resume or job description to compare passages.
                 </p>
               ) : (
                 analysis.evidence.map((item, index) => (
                   <div key={index} className="rounded-lg border p-3">
                     <p className="text-sm font-medium">{item.requirement}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      "{item.snippet}"
-                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">"{item.snippet}"</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Similarity: {Math.round(item.similarity * 100)}%
                     </p>
@@ -204,8 +191,8 @@ function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
             <TabsContent value="suggestions" className="space-y-4 pt-4">
               {analysis.suggestions.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No suggestions yet. They are generated from the project and
-                  work-experience bullet points found on your resume.
+                  No suggestions yet. They are generated from the project and work-experience bullet
+                  points found on your resume.
                 </p>
               ) : (
                 analysis.suggestions.map((s) => (
@@ -224,36 +211,29 @@ function AnalysisDashboard({ analysis }: { analysis: AnalysisResult }) {
                         <p className="text-sm">{s.suggested}</p>
                       </div>
                     </div>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Why: {s.whyChanged}
-                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">Why: {s.whyChanged}</p>
                   </div>
                 ))
               )}
               <p className="text-xs text-muted-foreground">
-                Suggestions rephrase what you already wrote. Only keep wording
-                that stays truthful to your real experience.
+                Suggestions rephrase what you already wrote. Only keep wording that stays truthful
+                to your real experience.
               </p>
             </TabsContent>
 
             <TabsContent value="roadmap" className="space-y-4 pt-4">
               {analysis.roadmap.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No missing required skills, so no learning roadmap is needed
-                  for this job.
+                  No missing required skills, so no learning roadmap is needed for this job.
                 </p>
               ) : (
                 analysis.roadmap.map((item) => (
                   <div key={item.skill} className="rounded-lg border p-3">
                     <div className="mb-1 flex items-center justify-between">
                       <p className="font-medium">{item.skill}</p>
-                      <Badge variant="outline">
-                        ~{item.estimatedWeeks} weeks
-                      </Badge>
+                      <Badge variant="outline">~{item.estimatedWeeks} weeks</Badge>
                     </div>
-                    <p className="mb-2 text-sm text-muted-foreground">
-                      {item.reason}
-                    </p>
+                    <p className="mb-2 text-sm text-muted-foreground">{item.reason}</p>
                     <ul className="list-inside list-disc space-y-1 text-sm">
                       {item.steps.map((step, i) => (
                         <li key={i}>{step}</li>

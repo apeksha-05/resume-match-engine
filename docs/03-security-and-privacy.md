@@ -63,6 +63,7 @@ Tests: `tests/test_prompt_safety.py`, `tests/test_injection_pipeline.py`, `tests
 - **No malware scanning** of uploaded files. PDFs are parsed in memory, never executed, and limited in size and length.
 - **Request logs include client IP addresses.**
 - **Single region, no backups policy,** because this is a portfolio project, not a commercial service.
+- **Development tooling advisories.** The shadcn component CLI pulls in file-matching libraries with published advisories and no fixed release. They run only on a developer's machine or in CI, on the project's own files, and are not part of the deployed application. Audits of the shipped dependencies report none.
 
 ## 6. Before going live (deployment checklist)
 

@@ -5,22 +5,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { WeightSliders } from "@/components/WeightSliders";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { defaultWeights } from "@/data/mockData";
-import {
-  createAnalysis,
-  deleteResume,
-  getErrorMessage,
-  uploadResume,
-} from "@/lib/api";
+import { createAnalysis, deleteResume, getErrorMessage, uploadResume } from "@/lib/api";
 import { formatFileSize, validateResumeFile } from "@/lib/validation";
 import type { Weights } from "@/types";
 
@@ -60,10 +49,7 @@ export function NewAnalysisPage() {
     if (dropped) handleFile(dropped);
   };
 
-  const canSubmit =
-    file !== null &&
-    jobDescription.trim().length >= MIN_JD_LENGTH &&
-    !isSubmitting;
+  const canSubmit = file !== null && jobDescription.trim().length >= MIN_JD_LENGTH && !isSubmitting;
 
   const handleSubmit = async () => {
     if (!file || !canSubmit) return;
@@ -89,9 +75,7 @@ export function NewAnalysisPage() {
         // Don't leave an orphaned resume record if the analysis step failed.
         deleteResume(uploadedResumeId).catch(() => undefined);
       }
-      setSubmitError(
-        getErrorMessage(error, "Something went wrong. Please try again."),
-      );
+      setSubmitError(getErrorMessage(error, "Something went wrong. Please try again."));
       setIsSubmitting(false);
       setStage("idle");
     }
@@ -116,9 +100,8 @@ export function NewAnalysisPage() {
           <CardHeader>
             <CardTitle>1. Resume (PDF)</CardTitle>
             <CardDescription>
-              Maximum size 5 MB, PDF only. Your PDF is processed in memory and
-              is not stored. Only the extracted skills and short text snippets
-              are saved to your account.
+              Maximum size 5 MB, PDF only. Your PDF is processed in memory and is not stored. Only
+              the extracted skills and short text snippets are saved to your account.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -138,9 +121,7 @@ export function NewAnalysisPage() {
                 }`}
               >
                 <Upload className="size-8 text-muted-foreground" />
-                <p className="text-sm font-medium">
-                  Drag and drop your resume, or click to browse
-                </p>
+                <p className="text-sm font-medium">Drag and drop your resume, or click to browse</p>
                 <p className="text-xs text-muted-foreground">PDF, up to 5 MB</p>
                 <input
                   ref={fileInputRef}
@@ -160,9 +141,7 @@ export function NewAnalysisPage() {
                   <FileText className="size-6 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatFileSize(file.size)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                   </div>
                 </div>
                 <Button
@@ -190,8 +169,7 @@ export function NewAnalysisPage() {
           <CardHeader>
             <CardTitle>2. Job description</CardTitle>
             <CardDescription>
-              Paste the full job posting text (at least {MIN_JD_LENGTH}{" "}
-              characters).
+              Paste the full job posting text (at least {MIN_JD_LENGTH} characters).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -207,8 +185,7 @@ export function NewAnalysisPage() {
               onChange={(e) => setJobDescription(e.target.value)}
             />
             <p className="mt-1 text-right text-xs text-muted-foreground">
-              {jobDescription.trim().length} / {MIN_JD_LENGTH} characters
-              minimum
+              {jobDescription.trim().length} / {MIN_JD_LENGTH} characters minimum
             </p>
           </CardContent>
         </Card>
@@ -217,8 +194,7 @@ export function NewAnalysisPage() {
           <CardHeader>
             <CardTitle>3. Category weights</CardTitle>
             <CardDescription>
-              Optional. Adjust how much each category counts toward the overall
-              score.
+              Optional. Adjust how much each category counts toward the overall score.
             </CardDescription>
           </CardHeader>
           <CardContent>
