@@ -1,15 +1,29 @@
+import { lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { RequireAuth } from "@/components/RequireAuth";
-import { HistoryPage } from "@/pages/HistoryPage";
-import { JobsPage } from "@/pages/JobsPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { LoginPage } from "@/pages/LoginPage";
-import { NewAnalysisPage } from "@/pages/NewAnalysisPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { ResultsPage } from "@/pages/ResultsPage";
-import { SettingsPage } from "@/pages/SettingsPage";
 import { SignupPage } from "@/pages/SignupPage";
+
+// Heavier pages load on demand, so the first visit downloads less code.
+// React.lazy needs a default export, so each named export is wrapped.
+const NewAnalysisPage = lazy(() =>
+  import("@/pages/NewAnalysisPage").then((module) => ({ default: module.NewAnalysisPage })),
+);
+const ResultsPage = lazy(() =>
+  import("@/pages/ResultsPage").then((module) => ({ default: module.ResultsPage })),
+);
+const JobsPage = lazy(() =>
+  import("@/pages/JobsPage").then((module) => ({ default: module.JobsPage })),
+);
+const HistoryPage = lazy(() =>
+  import("@/pages/HistoryPage").then((module) => ({ default: module.HistoryPage })),
+);
+const SettingsPage = lazy(() =>
+  import("@/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
+);
 
 function App() {
   return (

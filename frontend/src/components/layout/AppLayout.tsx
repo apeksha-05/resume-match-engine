@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { ModeBanner } from "@/components/ModeBanner";
+import { Suspense } from "react";
+import { PageFallback } from "@/components/PageFallback";
 
 const navItems = [
   { to: "/analyze", label: "New Analysis" },
@@ -64,7 +66,9 @@ export function AppLayout() {
       <ModeBanner />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-        <Outlet />
+        <Suspense fallback={<PageFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <footer className="border-t py-4 text-center text-xs text-muted-foreground">
