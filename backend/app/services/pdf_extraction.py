@@ -45,7 +45,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
                 f"This PDF has {document.page_count} pages. "
                 f"Resumes longer than {MAX_PAGES} pages are not supported."
             )
-        pages_text = [page.get_text() for page in document]
+        pages_text = [page.get_text() for page in document.pages()]
     except PdfValidationError:
         raise
     except Exception as exc:

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pymupdf
 
@@ -20,7 +20,7 @@ def make_detail(
         job_title=job_title,
         company=company,
         is_demo=is_demo,
-        created_at=datetime(2026, 10, 1, 10, 0, tzinfo=timezone.utc),
+        created_at=datetime(2026, 10, 1, 10, 0, tzinfo=UTC),
         overall_score=71,
         weights=Weights(skills=0.45, semantic=0.25, experience=0.2, education=0.1),
         categories=[

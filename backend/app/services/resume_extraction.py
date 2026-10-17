@@ -66,9 +66,13 @@ def _extract_structured_resume_real(resume_text: str) -> ParsedResume:
             "The AI service could not process this resume right now."
         ) from exc
 
+    raw_text = response.text
+    if not raw_text:
+        raise ResumeExtractionError("The AI returned an empty response.")
+
     try:
-        return ParsedResume.model_validate(json.loads(response.text))
-    except (json.JSONDecodeError, ValidationError, TypeError) as exc:
+        return ParsedResume.model_validate(json.loads(raw_text))
+    except (json.JSONDecodeError, ValidationError) as exc:
         raise ResumeExtractionError(
             "The AI's response could not be validated against the expected resume structure."
         ) from exc

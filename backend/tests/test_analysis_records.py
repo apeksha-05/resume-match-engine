@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -55,7 +55,7 @@ def make_full_result() -> AnalysisFullResult:
 
 def make_row(full: AnalysisFullResult) -> SimpleNamespace:
     fields = pack_analysis(full, "Backend Engineer", "Acme Cloud", True)
-    return SimpleNamespace(id=uuid.uuid4(), created_at=datetime.now(timezone.utc), **fields)
+    return SimpleNamespace(id=uuid.uuid4(), created_at=datetime.now(UTC), **fields)
 
 
 def test_pack_then_unpack_round_trips():

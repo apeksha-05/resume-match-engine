@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import jwt
@@ -42,7 +42,7 @@ def make_token(
     audience: str = "authenticated",
     expires_in: int | None = 3600,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict = {"aud": audience, "iat": now}
     if subject is not None:
         payload["sub"] = subject

@@ -8,7 +8,7 @@ real database, which the CI setup in Phase 10 provides.
 """
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pymupdf
@@ -50,7 +50,7 @@ class FakeSession:
         if getattr(row, "id", None) is None:
             row.id = uuid.uuid4()
         if hasattr(row, "created_at") and row.created_at is None:
-            row.created_at = datetime.now(timezone.utc)
+            row.created_at = datetime.now(UTC)
         self.rows[(type(row), row.id)] = row
 
     def get(self, model, key):

@@ -82,8 +82,8 @@ def generate_roadmap_mock(missing_required_skills: list[str]) -> list[RoadmapIte
             RoadmapItem(
                 skill=skill_name,
                 reason=(
-                    f"Required by this job and not currently shown on your resume, "
-                    f"so it's a skill to learn rather than one you've demonstrated."
+                    "Required by this job and not currently shown on your resume, "
+                    "so it's a skill to learn rather than one you've demonstrated."
                 ),
                 steps=CATEGORY_STEPS.get(category, DEFAULT_STEPS),
                 estimated_weeks=ESTIMATED_WEEKS_BY_CATEGORY.get(category, 3),

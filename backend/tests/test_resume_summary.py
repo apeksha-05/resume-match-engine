@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from app.services.resume_summary import to_resume_summary
@@ -9,7 +9,7 @@ def make_row(parsed: dict) -> SimpleNamespace:
     return SimpleNamespace(
         id=uuid.uuid4(),
         filename="resume.pdf",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         parsed=parsed,
     )
 

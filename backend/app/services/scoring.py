@@ -82,12 +82,15 @@ def _score_skills(resume: ParsedResume, jd: ParsedJobDescription) -> tuple[float
             f"{len(matched_required)} of {len(required)} required skills matched "
             f"({required_ratio:.0%}). The job description lists no preferred skills."
         )
-    else:
+    elif preferred_ratio is not None:
         score = preferred_ratio
         explanation = (
             f"{len(matched_preferred)} of {len(preferred)} preferred skills matched "
             f"({preferred_ratio:.0%}). The job description lists no required skills."
         )
+    else:
+        # Unreachable: the check above guarantees at least one list is non-empty.
+        return None, "The job description does not list any required or preferred skills.", {}
 
     details = {
         "matched_required": matched_required,
@@ -124,10 +127,10 @@ def _score_semantic(
     evidence_items: list[EvidenceItem] = []
     rescaled_scores: list[float] = []
 
-    for requirement_text, req_vector in zip(requirements, requirement_vectors):
+    for requirement_text, req_vector in zip(requirements, requirement_vectors, strict=True):
         best_similarity = -1.0
         best_chunk = ""
-        for chunk_text, chunk_vector in zip(resume_chunks, chunk_vectors):
+        for chunk_text, chunk_vector in zip(resume_chunks, chunk_vectors, strict=True):
             similarity = cosine_similarity(req_vector, chunk_vector)
             if similarity > best_similarity:
                 best_similarity = similarity
@@ -235,8 +238,8 @@ def compute_analysis(
         ),
     ]
 
-    applicable = [(k, l, s, w, e) for (k, l, s, w, e) in raw_categories if s is not None]
-    not_applicable = [(k, l, w, e) for (k, l, s, w, e) in raw_categories if s is None]
+    applicable = [(k, label, s, w, e) for (k, label, s, w, e) in raw_categories if s is not None]
+    not_applicable = [(k, label, w, e) for (k, label, s, w, e) in raw_categories if s is None]
 
     total_applicable_weight = sum(w for (_, _, _, w, _) in applicable)
     calculation_notes: list[str] = []
@@ -261,7 +264,7 @@ def compute_analysis(
             )
         )
 
-    for key, label, original_weight, explanation in not_applicable:
+    for key, label, _weight, explanation in not_applicable:
         categories.append(
             CategoryScore(
                 key=key,

@@ -1,6 +1,6 @@
-from app.schemas.job_description import ParsedJobDescription
-from app.schemas.resume import EvidencedSkill, ParsedResume, Project, WorkExperience
 from app.schemas.analysis import Weights
+from app.schemas.job_description import ParsedJobDescription
+from app.schemas.resume import EvidencedSkill, ParsedResume
 from app.services.scoring import compute_analysis
 
 EQUAL_WEIGHTS = Weights(skills=0.25, semantic=0.25, experience=0.25, education=0.25)

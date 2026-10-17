@@ -1,3 +1,6 @@
+import re
+
+from app.core.skills_data import SKILLS
 from app.schemas.resume import EvidencedSkill, ParsedResume, Project
 from app.services.mock_roadmap import generate_roadmap_mock
 from app.services.mock_suggestions import generate_suggestions_mock
@@ -25,6 +28,11 @@ def test_roadmap_empty_when_no_missing_skills():
     assert roadmap == []
 
 
+def _mentions(skill_name: str, text: str) -> bool:
+    pattern = r"(?<!\w)" + re.escape(skill_name) + r"(?!\w)"
+    return re.search(pattern, text, flags=re.IGNORECASE) is not None
+
+
 def test_suggestions_never_invent_skills_not_in_resume():
     resume = ParsedResume(
         skills=[
@@ -42,15 +50,15 @@ def test_suggestions_never_invent_skills_not_in_resume():
 
     suggestions = generate_suggestions_mock(resume)
 
-    resume_skill_names = {s.name for s in resume.skills}
+    assert suggestions, "the sample resume should produce at least one suggestion"
+    resume_skill_names = {skill.name for skill in resume.skills}
     for suggestion in suggestions:
-        # Every skill name appearing in the suggested text must already be
-        # a real skill from the resume, never fabricated.
-        for skill_name in resume_skill_names:
-            pass  # presence isn't required, but nothing outside resume_skill_names should appear
-        assert suggestion.original in suggestion.suggested or suggestion.suggested.startswith(
-            suggestion.original.rstrip(".")
-        )
+        for skill_name in SKILLS:
+            added_by_suggestion = _mentions(skill_name, suggestion.suggested) and not _mentions(
+                skill_name, suggestion.original
+            )
+            if added_by_suggestion:
+                assert skill_name in resume_skill_names
 
 
 def test_suggestions_empty_when_no_bullets():
@@ -62,5 +70,5 @@ def test_suggestions_empty_when_no_bullets():
         certifications=[],
         job_titles_held=[],
     )
-    suggestions = generate_suggestions_mock(resume)
-    assert suggestions == []
+
+    assert generate_suggestions_mock(resume) == []

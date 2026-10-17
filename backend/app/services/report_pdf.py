@@ -57,7 +57,11 @@ HEADING_STYLE = ParagraphStyle(
 )
 BODY_STYLE = ParagraphStyle("ReportBody", parent=_base["Normal"], fontSize=9.5, leading=13)
 SMALL_STYLE = ParagraphStyle(
-    "ReportSmall", parent=BODY_STYLE, fontSize=8.5, leading=11, textColor=colors.HexColor("#555555")
+    "ReportSmall",
+    parent=BODY_STYLE,
+    fontSize=8.5,
+    leading=11,
+    textColor=colors.HexColor("#555555"),
 )
 CELL_STYLE = ParagraphStyle("ReportCell", parent=BODY_STYLE, fontSize=8.5, leading=11)
 BULLET_STYLE = ParagraphStyle("ReportBullet", parent=BODY_STYLE, leftIndent=12, bulletIndent=2)
@@ -201,11 +205,12 @@ def build_report_pdf(detail: AnalysisDetailOut) -> bytes:
 
     story.append(Paragraph("Supporting evidence from your resume", HEADING_STYLE))
     if detail.evidence:
-        for item in detail.evidence:
-            story.append(Paragraph(f"<b>{_safe(item.requirement, 150)}</b>", BODY_STYLE))
+        for evidence_item in detail.evidence:
+            story.append(Paragraph(f"<b>{_safe(evidence_item.requirement, 150)}</b>", BODY_STYLE))
             story.append(
                 Paragraph(
-                    f'"{_safe(item.snippet, 400)}" (similarity {round(item.similarity * 100)}%)',
+                    f'"{_safe(evidence_item.snippet, 400)}" '
+                    f"(similarity {round(evidence_item.similarity * 100)}%)",
                     SMALL_STYLE,
                 )
             )
@@ -213,7 +218,8 @@ def build_report_pdf(detail: AnalysisDetailOut) -> bytes:
     else:
         story.append(
             Paragraph(
-                "Not enough text on the resume or job description to compare passages.", BODY_STYLE
+                "Not enough text on the resume or job description to compare passages.",
+                BODY_STYLE,
             )
         )
 
@@ -240,15 +246,16 @@ def build_report_pdf(detail: AnalysisDetailOut) -> bytes:
 
     story.append(Paragraph("Learning roadmap", HEADING_STYLE))
     if detail.roadmap:
-        for item in detail.roadmap:
+        for roadmap_item in detail.roadmap:
             story.append(
                 Paragraph(
-                    f"<b>{_safe(item.skill, 60)}</b> (about {item.estimated_weeks} weeks)",
+                    f"<b>{_safe(roadmap_item.skill, 60)}</b> "
+                    f"(about {roadmap_item.estimated_weeks} weeks)",
                     BODY_STYLE,
                 )
             )
-            story.append(Paragraph(_safe(item.reason, 300), SMALL_STYLE))
-            for step in item.steps:
+            story.append(Paragraph(_safe(roadmap_item.reason, 300), SMALL_STYLE))
+            for step in roadmap_item.steps:
                 story.append(Paragraph(_safe(step, 300), BULLET_STYLE, bulletText="•"))
             story.append(Spacer(1, 6))
     else:
