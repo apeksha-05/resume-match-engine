@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     max_request_bytes: int = 6 * 1024 * 1024  # a little above the 5 MB PDF limit
     per_ip_requests_per_minute: int = 120
 
+    # Where the embedding model's files are cached. Empty means the library's default
+    # (a temporary folder). In Docker this points at a folder baked into the image.
+    embedding_cache_dir: str = ""
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
