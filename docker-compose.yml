@@ -1,0 +1,59 @@
+# Runs the whole stack: a Postgres database with pgvector, the API, and the website.
+# Sign-in still uses your Supabase project, so put SUPABASE_URL and the public key in a
+# root-level .env file (see .env.example). Without them the site and API still start,
+# but nobody can log in.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app_password
+      POSTGRES_DB: resume_match
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d resume_match"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://app:app_password@db:5432/resume_match
+      ENVIRONMENT: development
+      CORS_ORIGINS: http://localhost:8080
+      SUPABASE_URL: ${SUPABASE_URL:-https://your-project.supabase.co}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+    # Also loads the demo skills and jobs. Both seed scripts are safe to run repeatedly.
+    command:
+      - sh
+      - -c
+      - "alembic upgrade head && python -m scripts.seed_skills && python -m scripts.seed_jobs && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-https://your-project.supabase.co}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-public-key-placeholder}
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  dbdata:
